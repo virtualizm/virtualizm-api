@@ -29,7 +29,7 @@ LibvirtApp.app = Rack::Builder.new do
   use Rack::MethodOverride
   use Rack::Session::Cookie, key: LibvirtApp.config.cookie_name, secret: LibvirtApp.config.cookie_secret
   use Rack::ImprovedLogger, LibvirtApp.logger
-  use Rack::Protection, use: [:cookie_tossing, :content_security_policy, :remote_referrer, :strict_transport]
+  use Rack::Protection, use: [:cookie_tossing]
   # use Rack::Static, urls: %w(/assets /index.html), root: File.join(__dir__, 'public')
 
   use Rack::Router::Middleware, logger: LibvirtApp.logger do
