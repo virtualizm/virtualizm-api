@@ -11,6 +11,8 @@ class VirtualMachineResource < BaseResource
                :xml
 
     has_one :hypervisor do
+      linkage always: true
+
       link(:self) do
         "/api/hypervisors/#{@object.hypervisor.id}"
       end
