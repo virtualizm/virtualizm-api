@@ -1,0 +1,153 @@
+class Hypervisor
+  include LibvirtAsync::WithDbg
+
+  class_attribute :_storage, instance_accessor: false
+
+  class << self
+    def load_storage(clusters)
+      dbg { "#{name}.load_storage #{clusters}" }
+      self._storage = clusters.map do |cluster|
+        Hypervisor.new(id: cluster['id'], name: cluster['name'], uri: cluster['uri'])
+      end
+      dbg { "#{name}.load_storage loaded size=#{_storage.size}" }
+    end
+
+    def all
+      dbg { "#{name}.all" }
+      result = _storage
+      dbg { "#{name}.all found size=#{result.size}" }
+      result
+    end
+
+    def find_by(id:)
+      dbg { "#{name}.find_by id=#{id}" }
+      result = _storage.detect { |hv| hv.id == id }
+      dbg { "#{name}.find_by found id=#{result&.id}, name=#{result&.name}, uri=#{result&.uri}" }
+      result
+    end
+  end
+
+  attr_reader :id,
+              :name,
+              :uri,
+              :connection,
+              :virtual_machines
+
+  attr_accessor :version,
+                :libversion,
+                :hostname,
+                :max_vcpus,
+                :cpu_model,
+                :cpus,
+                :mhz,
+                :numa_nodes,
+                :cpu_sockets,
+                :cpu_cores,
+                :cpu_threads,
+                :total_memory,
+                :free_memory,
+                :capabilities
+
+  def initialize(id:, name:, uri:)
+    dbg { "#{self.class}#initialize id=#{id}, name=#{name}, uri=#{uri}" }
+
+    @id = id
+    @name = name
+    @uri = uri
+
+    #force connect to initialize events callbacks
+    connection
+    setup_attributes
+    register_dom_event_callbacks
+    load_virtual_machines
+  end
+
+  def connection
+    @connection ||= _open_connection
+  end
+
+  def to_json(_opts = nil)
+    as_json.to_json
+  end
+
+  def as_json
+    {
+        id: @id,
+        name: @name
+    }
+  end
+
+  private
+
+  def load_virtual_machines
+    dbg { "#{self.class}#load_virtual_machines id=#{id}, name=#{name}, uri=#{uri}" }
+    @virtual_machines = connection.list_all_domains.map { |vm| VirtualMachine.new(domain: vm, hypervisor: self) }
+    dbg { "#{self.class}#load_virtual_machines loaded size=#{virtual_machines.size} id=#{id}, name=#{name}, uri=#{uri}" }
+  end
+
+  def _open_connection
+    if LibvirtApp.config.libvirt_rw
+      dbg { "#{self.class}#_open_connection Opening RW connection to name=#{name} id=#{id}, uri=#{uri}" }
+      c = Libvirt::open(uri)
+    else
+      dbg { "#{self.class}#_open_connection Opening RO connection to name=#{name} id=#{id}, uri=#{uri}" }
+      c = Libvirt::open_read_only(uri)
+    end
+
+    dbg { "#{self.class}#_open_connection Connected name=#{name} id=#{id}, uri=#{uri}" }
+
+    # c.keepalive = [10, 2]
+    c
+  end
+
+  def setup_attributes
+    self.version = connection.version
+    self.libversion = connection.libversion
+    self.hostname = connection.hostname
+    self.max_vcpus = connection.max_vcpus
+    self.capabilities = connection.capabilities
+
+    node_info = connection.node_info
+    self.cpu_model = node_info.model
+    self.cpus = node_info.cpus
+    self.mhz = node_info.mhz
+    self.numa_nodes = node_info.nodes
+    self.cpu_sockets = node_info.sockets
+    self.cpu_cores = node_info.cores
+    self.cpu_threads = node_info.threads
+    self.total_memory = node_info.memory
+    self.free_memory = node_info.memory
+  end
+
+  def register_dom_event_callbacks
+    connection.domain_event_register_any(
+        Libvirt::Connect::DOMAIN_EVENT_ID_REBOOT,
+        method(:dom_event_callback_reboot).to_proc
+    )
+
+    connection.domain_event_register_any(
+        Libvirt::Connect::DOMAIN_EVENT_ID_LIFECYCLE,
+        method(:dom_event_callback_lifecycle).to_proc
+    )
+  end
+
+  def dom_event_callback_reboot(_conn, dom, _opaque)
+    dbg { "#{self.class}#dom_event_callback_reboot id=#{id} dom.uuid=#{dom.uuid}" }
+    DomainEventCable.broadcast(
+        'domain_event',
+        type: 'domain_reboot',
+        id: dom.uuid
+    )
+  end
+
+  def dom_event_callback_lifecycle(_conn, dom, event, detail, _opaque)
+    dbg { "#{self.class}#dom_event_callback_reboot id=#{id} dom.uuid=#{dom.uuid}" }
+    DomainEventCable.broadcast(
+        'domain_event',
+        type: 'domain_lifecycle',
+        id: dom.uuid,
+        event: event,
+        detail: detail
+    )
+  end
+end

@@ -1,0 +1,67 @@
+source 'https://rubygems.org'
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+
+ruby '2.5.7'
+
+gem 'rake'
+
+# Utility classes and Ruby extensions.
+gem 'activesupport'
+
+# fix Rack::Protection::CookieTossing for websocket response.
+# https://github.com/rack/rack/pull/1434
+gem 'rack', github: 'rack/rack'
+
+# Contributed Rack Middleware and Utilities.
+gem 'rack-contrib'
+
+# Protects against typical web attacks.
+gem 'rack-protection'
+
+# Simple and functional rack middleware for routing requests.
+# https://github.com/senid231/rack_router
+gem 'rack_router'
+
+# Async web server.
+# https://github.com/socketry/falcon
+gem 'falcon'
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1787914
+# Use patched version of gem until issue resolved.
+#   $ gem install ./ruby-libvirt-0.7.2.pre.streamfix.gem
+#   $ bundle install
+#
+gem 'ruby-libvirt', '0.7.2.pre.streamfix'
+
+# Async libvirt event api implementation
+# https://github.com/senid231/libvirt_async
+gem 'libvirt_async', '~> 0.1'
+
+# Very simple but functional websocket server for Rack async application.
+# https://github.com/seni231/async_cable
+gem 'async_cable'
+
+# Ruby libraries and applications configuration on steroids!
+# https://github.com/palkan/anyway_config
+gem 'anyway_config', '2.0.0.pre'
+
+# Parameters-based transformation DSL.
+# https://github.com/palkan/rubanok
+gem 'rubanok'
+
+# Efficiently produce and consume JSON API documents.
+# https://github.com/jsonapi-rb/jsonapi-rb
+gem 'jsonapi-rb'
+
+group :development, :test do
+  gem 'byebug'
+end
+
+group :test do
+  gem 'minitest', require: false
+  gem 'rack-test', require: false
+  gem 'minitest-reporters', require: false
+  # for script/client.rb
+  gem 'httparty', require: false
+  gem 'websocket-client-simple', require: false
+end
