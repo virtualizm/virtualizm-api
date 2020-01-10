@@ -45,7 +45,7 @@ class JsonApiController < BaseController
     json_api_verify_env!
     options = json_api_options
     object = resource_class.find_single(path_params[:id], options)
-    object.destroy
+    resource_class.destroy(object, options)
     response_json_api status: 204
   end
 
@@ -94,7 +94,12 @@ class JsonApiController < BaseController
       log_error(e)
       e = JSONAPI::Errors::ServerError.new
     end
-    body = renderer.render_errors([e], class: e.render_classes, expose: e.render_expose)
+    body = renderer.render_errors(
+        [e],
+        jsonapi: { version: JSONAPI::Const::SPEC_VERSION },
+        class: e.render_classes,
+        expose: e.render_expose
+    )
     response_json_api(status: e.status, body: body)
   end
 
@@ -108,7 +113,7 @@ class JsonApiController < BaseController
     JSONAPI::Const::MIME_TYPE
     accepts = env['HTTP_ACCEPT'].to_s.split(';').first&.split(',') || []
     raise JSONAPI::Errors::BadRequest, 'Wrong Accept header' unless accepts.include?(JSONAPI::Const::MIME_TYPE)
-    if request.post? || request.put? || request.patch? || request.delete?
+    if request.post? || request.put? || request.patch?
       content_type = request.content_type
       raise JSONAPI::Errors::BadRequest, 'Wrong Content-Type header' if content_type != JSONAPI::Const::MIME_TYPE
     end

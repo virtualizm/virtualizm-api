@@ -109,6 +109,10 @@ class BaseResource
       raise NotImplementedError, "override .create in #{name}"
     end
 
+    def destroy(_object, _options)
+      raise NotImplementedError, "override .create in #{name}"
+    end
+
     def render_classes
       { _object_class.name.to_sym => self::Serializable }
     end

@@ -23,6 +23,23 @@ class RequestTestCase < Minitest::Test
     post url, params
   end
 
+  def put_json_api(url, params = {})
+    header 'Accept', JSONAPI::Const::MIME_TYPE
+    header 'Content-Type', JSONAPI::Const::MIME_TYPE
+    put url, params
+  end
+
+  def patch_json_api(url, params = {})
+    header 'Accept', JSONAPI::Const::MIME_TYPE
+    header 'Content-Type', JSONAPI::Const::MIME_TYPE
+    patch url, params
+  end
+
+  def delete_json_api(url, params = {})
+    header 'Accept', JSONAPI::Const::MIME_TYPE
+    delete url, params
+  end
+
   def assert_http_status(expected_status)
     failure_msg = proc { "Expected response status to be #{expected_status}, but got #{last_response.status}" }
     assert_equal expected_status, last_response.status, failure_msg
@@ -43,5 +60,26 @@ class RequestTestCase < Minitest::Test
       STDERR.puts "last_response_json ParserError #{e.message}\n#{bt}"
       nil
     end
+  end
+
+  # Set cookie for next request.
+  # @param raw_cookie [String]
+  def set_cookie_header(raw_cookie)
+    header 'Cookie', raw_cookie
+  end
+
+  # Performs sign in request and return cookie.
+  # @return [String] raw cookie
+  def sign_in_for_cookie(user)
+    post_json_api '/api/sessions', {
+        data: {
+            type: 'sessions',
+            attributes: {
+                login: user.login,
+                password: user.password
+            }
+        }
+    }.to_json
+    last_response.headers['Set-Cookie']
   end
 end

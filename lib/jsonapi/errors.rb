@@ -4,7 +4,7 @@ module JSONAPI
       attr_reader :object
       title { object.title }
       detail { object.detail }
-      status { object.status }
+      status { object.status.to_s }
     end
 
     class Error < StandardError

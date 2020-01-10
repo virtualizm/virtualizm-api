@@ -155,7 +155,7 @@ class BaseController
     raise e if klass.nil?
 
     handler = _exception_handlers.fetch(klass)
-    logger.debug { "rescue from exception #{e.class} with handler #{klass} #{handler}" }
+    logger.debug { "rescue from exception <#{e.class}: #{e.message}> with handler #{klass} #{handler}" }
     handler = method(handler).to_proc if handler.is_a?(Symbol)
     instance_exec(e, &handler)
   end
