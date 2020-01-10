@@ -43,8 +43,8 @@ LibvirtApp.app = Rack::Builder.new do
       get '/hypervisors', [HypervisorsController, :index]
       get '/hypervisors/:id', [HypervisorsController, :show]
 
-      get '/virtual_machines', [VirtualMachinesController, :index]
-      get '/virtual_machines/:id', [VirtualMachinesController, :show]
+      get '/virtual-machines', [VirtualMachinesController, :index]
+      get '/virtual-machines/:id', [VirtualMachinesController, :show]
     end
   end
 
