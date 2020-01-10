@@ -129,25 +129,65 @@ class Hypervisor
         Libvirt::Connect::DOMAIN_EVENT_ID_LIFECYCLE,
         method(:dom_event_callback_lifecycle).to_proc
     )
+
+    connection.domain_event_register_any(
+        Libvirt::Connect::DOMAIN_EVENT_ID_RTC_CHANGE,
+        method(:dom_event_callback_rtc_change).to_proc
+    )
+
+    connection.domain_event_register_any(
+        Libvirt::Connect::DOMAIN_EVENT_ID_WATCHDOG,
+        method(:dom_event_callback_watchdog).to_proc
+    )
+
+    connection.domain_event_register_any(
+        Libvirt::Connect::DOMAIN_EVENT_ID_IO_ERROR,
+        method(:dom_event_callback_io_error).to_proc
+    )
+
+    connection.domain_event_register_any(
+        Libvirt::Connect::DOMAIN_EVENT_ID_IO_ERROR_REASON,
+        method(:dom_event_callback_io_error_reason).to_proc
+    )
+
+    connection.domain_event_register_any(
+        Libvirt::Connect::DOMAIN_EVENT_ID_GRAPHICS,
+        method(:dom_event_callback_graphics).to_proc
+    )
   end
 
+  # Libvirt::Connect::DOMAIN_EVENT_ID_REBOOT
   def dom_event_callback_reboot(_conn, dom, _opaque)
-    dbg { "#{self.class}#dom_event_callback_reboot id=#{id} dom.uuid=#{dom.uuid}" }
-    DomainEventCable.broadcast(
-        'domain_event',
-        type: 'domain_reboot',
-        id: dom.uuid
-    )
+    LibvirtApp.logger.info { "DOMAIN EVENT REBOOT #{id} #{dom.uuid}" }
   end
 
-  def dom_event_callback_lifecycle(_conn, dom, event, detail, _opaque)
-    dbg { "#{self.class}#dom_event_callback_reboot id=#{id} dom.uuid=#{dom.uuid}" }
-    DomainEventCable.broadcast(
-        'domain_event',
-        type: 'domain_lifecycle',
-        id: dom.uuid,
-        event: event,
-        detail: detail
-    )
+  # Libvirt::Connect::DOMAIN_EVENT_ID_LIFECYCLE
+  def dom_event_callback_lifecycle(_conn, dom, _event, _detail, _opaque)
+    LibvirtApp.logger.info { "DOMAIN EVENT LIFECYCLE #{id} #{dom.uuid}" }
+  end
+
+  # Libvirt::Connect::DOMAIN_EVENT_ID_RTC_CHANGE
+  def dom_event_callback_rtc_change(_conn, dom, _utc_offset, _opaque)
+    LibvirtApp.logger.info { "DOMAIN EVENT RTC_CHANGE #{id} #{dom.uuid}" }
+  end
+
+  # Libvirt::Connect::DOMAIN_EVENT_ID_WATCHDOG
+  def dom_event_callback_watchdog(_conn, dom, _action, _opaque)
+    LibvirtApp.logger.info { "DOMAIN EVENT WATCHDOG #{id} #{dom.uuid}" }
+  end
+
+  # Libvirt::Connect::DOMAIN_EVENT_ID_IO_ERROR
+  def dom_event_callback_io_error(_conn, dom, _src_path, _dev_alias, _action, _opaque)
+    LibvirtApp.logger.info { "DOMAIN EVENT IO_ERROR #{id} #{dom.uuid}" }
+  end
+
+  # Libvirt::Connect::DOMAIN_EVENT_ID_IO_ERROR_REASON
+  def dom_event_callback_io_error_reason(_conn, dom, _src_path, _dev_alias, _action, _opaque)
+    LibvirtApp.logger.info { "DOMAIN EVENT IO_ERROR_REASON #{id} #{dom.uuid}" }
+  end
+
+  # Libvirt::Connect::DOMAIN_EVENT_ID_GRAPHICS
+  def dom_event_callback_graphics(_conn, dom, _phase, _local, _remote, _auth_scheme, _subject, _opaque)
+    LibvirtApp.logger.info { "DOMAIN EVENT GRAPHICS #{id} #{dom.uuid}" }
   end
 end
