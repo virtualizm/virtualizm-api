@@ -1,1 +1,7 @@
+# bundler
+/vendor/bundle/
+/vendor/cache/
+/.bundle/
+
+# configs
 /config/app.yml
