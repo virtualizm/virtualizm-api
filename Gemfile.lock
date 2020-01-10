@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/rack/rack.git
-  revision: 7706f1913fce8e942a683afd706f07968f136326
+  revision: 7b860cee1c970e3f30f29daaa2ba3cb8924b0b44
   specs:
-    rack (2.1.0)
+    rack (2.2.0)
 
 GEM
   remote: https://rubygems.org/
@@ -109,7 +109,7 @@ GEM
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
-    rack_router (0.1.0)
+    rack_router (0.1.1)
       rack
     rake (12.3.0)
     rubanok (0.2.1)
