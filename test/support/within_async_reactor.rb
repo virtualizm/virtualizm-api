@@ -26,8 +26,8 @@ module WithinAsyncReactor
     reactor.run do |task|
       task.annotate(self.class)
 
-      spec_task = task.async do |spec_task|
-        spec_task.annotate("running example")
+      spec_task = task.async do |current_task|
+        current_task.annotate("running example")
 
         result = yield
 

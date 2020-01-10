@@ -30,7 +30,6 @@ class Hypervisor
   attr_reader :id,
               :name,
               :uri,
-              :connection,
               :virtual_machines
 
   attr_accessor :version,

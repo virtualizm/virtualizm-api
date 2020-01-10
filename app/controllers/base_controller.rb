@@ -151,7 +151,7 @@ class BaseController
   end
 
   def rescue_with_handler(e)
-    klass = _exception_handlers.keys.reverse.detect { |klass| e.is_a?(klass) }
+    klass = _exception_handlers.keys.reverse.detect { |k| e.is_a?(k) }
     raise e if klass.nil?
 
     handler = _exception_handlers.fetch(klass)

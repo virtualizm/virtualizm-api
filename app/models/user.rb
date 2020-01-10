@@ -7,7 +7,7 @@ class User
     end
 
     def authenticate(login:, password:)
-      user = _storage.detect { |user| user.login == login }
+      user = _storage.detect { |u| u.login == login }
       user&.authenticate?(password) ? user : nil
     end
 

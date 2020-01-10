@@ -110,7 +110,6 @@ class JsonApiController < BaseController
   end
 
   def json_api_verify_env!
-    JSONAPI::Const::MIME_TYPE
     accepts = env['HTTP_ACCEPT'].to_s.split(';').first&.split(',') || []
     raise JSONAPI::Errors::BadRequest, 'Wrong Accept header' unless accepts.include?(JSONAPI::Const::MIME_TYPE)
     if request.post? || request.put? || request.patch?
