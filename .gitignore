@@ -5,3 +5,7 @@
 
 # configs
 /config/app.yml
+
+# public
+/public/screenshots/
+!/public/screenshots/.keep

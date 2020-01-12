@@ -1,17 +1,113 @@
+require 'tempfile'
+require 'securerandom'
+
 class VirtualMachine
   include LibvirtAsync::WithDbg
+
+  class Screenshot
+    # Usage:
+    #   sc = VirtualMachine::Screenshot.call(vm, file_path: file_path, display: display) do |success, reason|
+    #     success ? puts("screenshot saved at #{file_path}") : STDERR.puts("screenshot failed with #{reason}")
+    #   end
+    #   sleep 30
+    #   sc.cancel if sc.active?
+    #
+    # @param vm [VirtualMachine]
+    # @param file_path [String]
+    # @param display [Integer] default 0
+    # @yield when screenshot save succeed or failed
+    # @yieldparam success [Boolean]
+    # @yieldparam reason [String,NilClass] error reason when success is false
+    # @return [VirtualMachine::Screenshot]
+    def self.call(vm, file_path:, display: 0, &block)
+      instance = new(vm, file_path: file_path, display: display)
+      instance.call(&block)
+      instance
+    end
+
+    attr_reader :vm, :file_path, :display
+
+    # @param vm [VirtualMachine]
+    # @param file_path [String]
+    # @param display [Integer] default 0
+    def initialize(vm, file_path:, display: 0)
+      @vm = vm
+      @file_path = file_path.to_s
+      @display = display
+      cleanup
+    end
+
+    # @yield when screenshot save succeed or failed
+    # @yieldparam success [Boolean]
+    # @yieldparam reason [String,NilClass] error reason when success is false
+    # @return [VirtualMachine::Screenshot]
+    def call(&block)
+      @block = block
+      @tmp_file = Tempfile.new('', nil, mode: File::Constants::BINARY)
+      logger.debug { "#{self.class}#call tmp file created tmp vm.id=#{vm.id}, tmp_file.path=#{@tmp_file&.path}" }
+
+      @stream = LibvirtAsync::StreamRead.new(vm.hypervisor.connection, @tmp_file)
+      vm_state = vm.get_state
+      logger.debug { "#{self.class}#call check state vm_state=#{vm_state}, vm.id=#{vm.id}" }
+      mime_type = vm.domain.screenshot(@stream.stream, display)
+      logger.debug { "#{self.class}#call mime_type=#{mime_type}, vm.id=#{vm.id}, tmp_file.path=#{@tmp_file&.path}" }
+
+      @stream.call { |success, reason, _io| on_complete(success, reason) }
+    rescue Libvirt::Error => e
+      logger.debug { "#{self.class}#call libvirt exception id=#{vm.id}, e=<#{e.class}: #{e.message}>" }
+      on_complete(false, e.message)
+    end
+
+    def active?
+      !@stream.nil?
+    end
+
+    def cancel
+      @stream&.cancel
+      true
+    rescue Libvirt::Error => _e
+      false
+    ensure
+      cleanup
+    end
+
+    private
+
+    # @param success [Boolean]
+    # @param reason [String,NilClass]
+    def on_complete(success, reason)
+      logger.debug { "#{self.class}#on_complete success=#{success} reason=#{reason} id=#{vm.id}" }
+
+      FileUtils.mv(@tmp_file.path, file_path) if success
+      cb = @block
+      f = @tmp_file
+      cleanup
+      f.close
+      cb.call(success, reason)
+    end
+
+    def cleanup
+      @block = nil
+      @stream = nil
+      @tmp_file = nil
+    end
+
+    def logger
+      LibvirtApp.logger
+    end
+  end
 
   # https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainState
   STATE_RUNNING = 1
   STATES = {
-      0 => "no state",
-      1 => "running",
-      2 => "blocked on resource",
-      3 => "paused by user",
-      4 => "being shut down",
-      5 => "shut off",
-      6 => "crashed",
-      7 => "suspended by guest power management",
+      0 => 'no state'.freeze,
+      1 => 'running'.freeze,
+      2 => 'blocked on resource'.freeze,
+      3 => 'paused by user'.freeze,
+      4 => 'being shut down'.freeze,
+      5 => 'shut off'.freeze,
+      6 => 'crashed'.freeze,
+      7 => 'suspended by guest power management'.freeze
   }.freeze
 
   attr_reader :domain,
@@ -72,10 +168,19 @@ class VirtualMachine
   end
 
   def get_state
-    dbg { "#{self.class}#state retrieving id=#{id}" }
     libvirt_state, _ = domain.state
-    dbg { "#{self.class}#state retrieved id=#{id} libvirt_state=#{libvirt_state}" }
     STATES[libvirt_state]
+  end
+
+  # Take screenshot asynchronously.
+  # @param file_path [String]
+  # @param display [Integer]
+  # @yield when success or failed
+  # @yieldparam success [Boolean]
+  # @yieldparam reason [String,NilClass] error reason
+  # @return [VirtualMachine::Screenshot] respond to #cancel which will cancel screenshot saving.
+  def take_screenshot(file_path, display: 0, &block)
+    Screenshot.call(self, file_path: file_path, display: display, &block)
   end
 
   # def start

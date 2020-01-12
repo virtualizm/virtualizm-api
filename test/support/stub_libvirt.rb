@@ -9,10 +9,16 @@ module StubLibvirt
     vm_stub.expect :id, 'id'
     vm_stub.expect :name, 'name'
 
+    vm_stub.expect :id, 'id'
+    vm_stub.expect :name, 'name'
+    vm_stub.expect :running?, false
+    vm_stub.expect :state, 'test'
+
     hv_stub = Minitest::Mock.new
     hv_stub.expect :id, 'id'
     hv_stub.expect :name, 'name'
     hv_stub.expect :uri, 'uri'
+    hv_stub.expect :virtual_machines, [vm_stub]
     hv_stub.expect :virtual_machines, [vm_stub]
 
     LibvirtAsync.stub :register_implementations!, nil do
