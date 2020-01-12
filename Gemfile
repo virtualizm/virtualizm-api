@@ -8,9 +8,7 @@ gem 'rake'
 # Utility classes and Ruby extensions.
 gem 'activesupport'
 
-# fix Rack::Protection::CookieTossing for websocket response.
-# https://github.com/rack/rack/pull/1434
-gem 'rack', github: 'rack/rack'
+gem 'rack', '>= 2.1.0'
 
 # Contributed Rack Middleware and Utilities.
 gem 'rack-contrib'

@@ -1,4 +1,5 @@
 require 'async/debug/selector'
+require 'active_support/concern'
 
 module WithinAsyncReactor
   extend ActiveSupport::Concern
