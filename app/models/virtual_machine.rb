@@ -12,6 +12,9 @@ class VirtualMachine
     #   sleep 30
     #   sc.cancel if sc.active?
     #
+
+    include LibvirtAsync::WithDbg
+
     # @param vm [VirtualMachine]
     # @param file_path [String]
     # @param display [Integer] default 0
@@ -44,17 +47,17 @@ class VirtualMachine
     def call(&block)
       @block = block
       @tmp_file = Tempfile.new('', nil, mode: File::Constants::BINARY)
-      logger.debug { "#{self.class}#call tmp file created tmp vm.id=#{vm.id}, tmp_file.path=#{@tmp_file&.path}" }
+      dbg { "#{self.class}#call tmp file created tmp vm.id=#{vm.id}, tmp_file.path=#{@tmp_file&.path}" }
 
       @stream = LibvirtAsync::StreamRead.new(vm.hypervisor.connection, @tmp_file)
       vm_state = vm.get_state
-      logger.debug { "#{self.class}#call check state vm_state=#{vm_state}, vm.id=#{vm.id}" }
+      dbg { "#{self.class}#call check state vm_state=#{vm_state}, vm.id=#{vm.id}" }
       mime_type = vm.domain.screenshot(@stream.stream, display)
-      logger.debug { "#{self.class}#call mime_type=#{mime_type}, vm.id=#{vm.id}, tmp_file.path=#{@tmp_file&.path}" }
+      dbg { "#{self.class}#call mime_type=#{mime_type}, vm.id=#{vm.id}, tmp_file.path=#{@tmp_file&.path}" }
 
       @stream.call { |success, reason, _io| on_complete(success, reason) }
     rescue Libvirt::Error => e
-      logger.debug { "#{self.class}#call libvirt exception id=#{vm.id}, e=<#{e.class}: #{e.message}>" }
+      dbg { "#{self.class}#call libvirt exception id=#{vm.id}, e=<#{e.class}: #{e.message}>" }
       on_complete(false, e.message)
     end
 
@@ -76,7 +79,7 @@ class VirtualMachine
     # @param success [Boolean]
     # @param reason [String,NilClass]
     def on_complete(success, reason)
-      logger.debug { "#{self.class}#on_complete success=#{success} reason=#{reason} id=#{vm.id}" }
+      dbg { "#{self.class}#on_complete success=#{success} reason=#{reason} id=#{vm.id}" }
 
       FileUtils.mv(@tmp_file.path, file_path) if success
       cb = @block

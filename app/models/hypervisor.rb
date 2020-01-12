@@ -157,36 +157,36 @@ class Hypervisor
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_REBOOT
   def dom_event_callback_reboot(_conn, dom, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT REBOOT #{id} #{dom.uuid}" }
+    LibvirtApp.logger.info { "DOMAIN EVENT REBOOT hv.id=#{id}, vm.id=#{dom.uuid}" }
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_LIFECYCLE
-  def dom_event_callback_lifecycle(_conn, dom, _event, _detail, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT LIFECYCLE #{id} #{dom.uuid}" }
+  def dom_event_callback_lifecycle(_conn, dom, event, detail, _opaque)
+    LibvirtApp.logger.info { "DOMAIN EVENT LIFECYCLE hv.id=#{id}, vm.id=#{dom.uuid}, event=#{event}, detail=#{detail}" }
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_RTC_CHANGE
-  def dom_event_callback_rtc_change(_conn, dom, _utc_offset, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT RTC_CHANGE #{id} #{dom.uuid}" }
+  def dom_event_callback_rtc_change(_conn, dom, utc_offset, _opaque)
+    LibvirtApp.logger.info { "DOMAIN EVENT RTC_CHANGE hv.id=#{id}, vm.id=#{dom.uuid}, utc_offset=#{utc_offset}" }
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_WATCHDOG
-  def dom_event_callback_watchdog(_conn, dom, _action, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT WATCHDOG #{id} #{dom.uuid}" }
+  def dom_event_callback_watchdog(_conn, dom, action, _opaque)
+    LibvirtApp.logger.info { "DOMAIN EVENT WATCHDOG hv.id=#{id}, vm.id=#{dom.uuid}, action=#{action}" }
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_IO_ERROR
-  def dom_event_callback_io_error(_conn, dom, _src_path, _dev_alias, _action, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT IO_ERROR #{id} #{dom.uuid}" }
+  def dom_event_callback_io_error(_conn, dom, src_path, dev_alias, action, _opaque)
+    LibvirtApp.logger.info { "DOMAIN EVENT IO_ERROR hv.id=#{id}, vm.id=#{dom.uuid}, src_path=#{src_path}, dev_alias=#{dev_alias}, action=#{action}" }
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_IO_ERROR_REASON
-  def dom_event_callback_io_error_reason(_conn, dom, _src_path, _dev_alias, _action, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT IO_ERROR_REASON #{id} #{dom.uuid}" }
+  def dom_event_callback_io_error_reason(_conn, dom, src_path, dev_alias, action, _opaque)
+    LibvirtApp.logger.info { "DOMAIN EVENT IO_ERROR_REASON hv.id=#{id}, vm.id=#{dom.uuid}, src_path=#{src_path}, dev_alias=#{dev_alias}, action=#{action}" }
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_GRAPHICS
-  def dom_event_callback_graphics(_conn, dom, _phase, _local, _remote, _auth_scheme, _subject, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT GRAPHICS #{id} #{dom.uuid}" }
+  def dom_event_callback_graphics(_conn, dom, phase, local, remote, auth_scheme, subject, _opaque)
+    LibvirtApp.logger.info { "DOMAIN EVENT GRAPHICS hv.id=#{id}, vm.id=#{dom.uuid}, phase=#{phase}, local=#{local}, remote=#{remote}, auth_scheme=#{auth_scheme}, subject=#{subject}" }
   end
 end
