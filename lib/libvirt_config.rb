@@ -7,6 +7,8 @@ class LibvirtConfig < Anyway::Config
               :cookie_secret,
               :cookie_name,
               :libvirt_rw,
+              :serve_static,
+              :screenshot_timeout,
               logger: ::Logger.new(STDOUT)
 
   def log_level
@@ -22,7 +24,7 @@ class LibvirtConfig < Anyway::Config
     # loads config/app.yml
     load
     # validate keys required in config/app.yml
-    validate_presence! :users, :clusters, :cookie_secret
+    validate_presence! :users, :clusters, :cookie_secret, :screenshot_timeout
   end
 
   private

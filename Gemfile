@@ -18,7 +18,7 @@ gem 'rack-protection'
 
 # Simple and functional rack middleware for routing requests.
 # https://github.com/senid231/rack_router
-gem 'rack_router'
+gem 'rack_router', '>= 0.1.2'
 
 # Async web server.
 # https://github.com/socketry/falcon
@@ -50,6 +50,10 @@ gem 'rubanok'
 # Efficiently produce and consume JSON API documents.
 # https://github.com/jsonapi-rb/jsonapi-rb
 gem 'jsonapi-rb'
+
+#
+# https://github.com/minimagick/minimagick
+gem 'mini_magick'
 
 group :development, :test do
   gem 'byebug'

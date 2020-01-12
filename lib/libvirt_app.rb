@@ -6,11 +6,28 @@ class LibvirtApp
   extend Forwardable
   extend SingleForwardable
 
-  single_delegate [:app, :app=, :config, :configure, :env, :root, :setup_config, :setup_env, :setup_root, :logger] => :instance
+  single_delegate [
+                      :app, :app=,
+                      :config, :configure,
+                      :env, :root, :setup_config, :setup_env, :setup_root,
+                      :logger,
+                      :find_server, :add_server
+                  ] => :instance
   instance_delegate [:logger] => :config
 
   attr_accessor :app
   attr_reader :root, :config, :env
+
+  def find_server(name)
+    @servers&.fetch(name.to_sym, nil)
+  end
+
+  def add_server(name, server)
+    name = name.to_sym
+    @servers ||= {}
+    raise ArgumentError, "server #{name} already added" if @servers.key?(name)
+    @servers[name] = server
+  end
 
   def setup_config
     @config = LibvirtConfig.new

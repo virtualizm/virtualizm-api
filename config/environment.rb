@@ -7,3 +7,7 @@ LibvirtApp.configure do |config|
   config.log_level = :debug
   config.cookie_name = 'libvirt-app.session'
 end
+
+if LibvirtApp.env.development? || LibvirtApp.env.test?
+  require 'byebug'
+end
