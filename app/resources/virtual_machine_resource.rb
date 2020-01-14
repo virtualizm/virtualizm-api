@@ -2,7 +2,7 @@ require_relative 'base_resource'
 
 class VirtualMachineResource < BaseResource
   class Serializable < JSONAPI::Serializable::Resource
-    type :virtual_machines
+    type :'virtual-machines'
 
     attributes :name,
                :state,
@@ -19,7 +19,7 @@ class VirtualMachineResource < BaseResource
     end
 
     link(:self) do
-      "/api/virtual_machines/#{@object.id}"
+      "/api/virtual-machines/#{@object.id}"
     end
   end
 
@@ -31,7 +31,9 @@ class VirtualMachineResource < BaseResource
     end
 
     def find_single(key, options)
-      VirtualMachine.find_by(id: key)
+      object = VirtualMachine.find_by(id: key)
+      raise JSONAPI::Errors::NotFound, key if object.nil?
+      object
     end
 
     def render_classes

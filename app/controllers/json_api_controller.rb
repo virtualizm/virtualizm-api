@@ -82,9 +82,9 @@ class JsonApiController < BaseController
   def json_api_options
     {
         context: json_api_context,
-        filters: request.params[:filter] || {},
-        includes: request.params[:include].to_s.split(','),
-        fields: (request.params[:field] || {}).transform_values { |v| v.split(',') }
+        filters: (request.params['filter'] || {}).symbolize_keys,
+        includes: request.params['include'].to_s.split(','),
+        fields: (request.params['field'] || {}).transform_values { |v| v.split(',') }.symbolize_keys
     }
     # todo verify options
   end

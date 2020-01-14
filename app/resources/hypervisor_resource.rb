@@ -33,7 +33,9 @@ class HypervisorResource < BaseResource
     end
 
     def find_single(key, options)
-      Hypervisor.find_by(id: key)
+      object = Hypervisor.find_by(id: key)
+      raise JSONAPI::Errors::NotFound, key if object.nil?
+      object
     end
   end
 end

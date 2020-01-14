@@ -1,9 +1,6 @@
 require_relative '../test_helper'
 
-class TestSessionsCreate < RequestTestCase
-  def setup
-  end
-
+class TestSessions < RequestTestCase
   def test_post_sessions
     user = User.all.first
     post_json_api '/api/sessions', {

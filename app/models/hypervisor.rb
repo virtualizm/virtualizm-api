@@ -21,7 +21,7 @@ class Hypervisor
 
     def find_by(id:)
       dbg { "#{name}.find_by id=#{id}" }
-      result = _storage.detect { |hv| hv.id == id }
+      result = _storage.detect { |hv| hv.id.to_s == id.to_s }
       dbg { "#{name}.find_by found id=#{result&.id}, name=#{result&.name}, uri=#{result&.uri}" }
       result
     end
