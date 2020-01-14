@@ -41,7 +41,7 @@ class RequestTestCase < Minitest::Test
   end
 
   def assert_http_status(expected_status)
-    failure_msg = proc { "Expected response status to be #{expected_status}, but got #{last_response.status}" }
+    failure_msg = proc { "Expected response status to be #{expected_status}, but got #{last_response.status}\n#{last_response_json || last_response.body}" }
     assert_equal expected_status, last_response.status, failure_msg
   end
 

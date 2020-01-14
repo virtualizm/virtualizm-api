@@ -10,7 +10,7 @@ before_install:
   - sudo apt-get -y install libvirt0 libvirt-dev
   - gem install bundler
   - mkdir -pv vendor/bundle vendor/cache
-  - cp -v ext/ruby-libvirt-0.7.2.pre.streamfix.gem vendor/cache/
+  - cp -v ext/ruby-libvirt-0.7.2.pre.streamfix3.2.gem vendor/cache/
   - bundle install --retry=3 -j4
   - cp -v config/app.yml.distr config/app.yml
 script:

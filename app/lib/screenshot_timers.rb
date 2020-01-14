@@ -102,7 +102,6 @@ class ScreenshotTimers
 
   def convert_screenshot(file_path)
     output_file_path = file_path.to_s.gsub /\.pnm$/, '.png'
-    logger.debug { "#{self.class}#convert_screenshot output_file_path=#{output_file_path}" }
 
     image = MiniMagick::Image.open(file_path)
     image.format('png')

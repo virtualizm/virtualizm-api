@@ -29,7 +29,7 @@ gem 'falcon'
 #   $ gem install ./ruby-libvirt-0.7.2.pre.streamfix.gem
 #   $ bundle install
 #
-gem 'ruby-libvirt', '0.7.2.pre.streamfix'
+gem 'ruby-libvirt', '0.7.2.pre.streamfix3.2'
 
 # Async libvirt event api implementation
 # https://github.com/senid231/libvirt_async

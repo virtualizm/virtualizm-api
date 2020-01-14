@@ -4,6 +4,7 @@ ENV['RACK_ENV'] = 'test'
 require 'minitest/autorun'
 require 'rack/test'
 require 'minitest/reporters'
+require 'active_support/all'
 
 support_paths = File.expand_path 'support/**/*.rb', __dir__
 Dir.glob(support_paths).each { |filename| require_relative filename }
