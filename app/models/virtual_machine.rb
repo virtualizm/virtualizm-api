@@ -46,14 +46,22 @@ class VirtualMachine
     # @return [VirtualMachine::Screenshot]
     def call(&block)
       @block = block
-      @tmp_file = Tempfile.new('', nil, mode: File::Constants::BINARY)
-      dbg { "#{self.class}#call tmp file created tmp vm.id=#{vm.id}, tmp_file.path=#{@tmp_file&.path}" }
+      # @tmp_file = Tempfile.new('', nil, mode: File::Constants::BINARY)
+      # @tmp_file_path = @tmp_file.path
+      @tmp_file_path = "/tmp/libvirt_screenshot_tmp_#{SecureRandom.hex(32)}_#{Time.now.to_i}"
+      fd = IO.sysopen(@tmp_file_path, 'wb')
+      io = IO.new(fd, autoclose: false)
+      io_wrapper = Async::IO::Generic.new(io)
+      # @tmp_file = Async::IO::Stream.new(io_wrapper, deferred: true)
+      @tmp_file = Async::IO::Stream.new(io_wrapper)
+
+      dbg { "#{self.class}#call tmp file created tmp vm.id=#{vm.id}, tmp_file.path=#{@tmp_file_path}" }
 
       @stream = LibvirtAsync::StreamRead.new(vm.hypervisor.connection, @tmp_file)
       vm_state = vm.get_state
       dbg { "#{self.class}#call check state vm_state=#{vm_state}, vm.id=#{vm.id}" }
       mime_type = vm.domain.screenshot(@stream.stream, display)
-      dbg { "#{self.class}#call mime_type=#{mime_type}, vm.id=#{vm.id}, tmp_file.path=#{@tmp_file&.path}" }
+      dbg { "#{self.class}#call mime_type=#{mime_type}, vm.id=#{vm.id}, tmp_file.path=#{@tmp_file_path}" }
 
       @stream.call { |success, reason, _io| on_complete(success, reason) }
     rescue Libvirt::Error => e
@@ -81,11 +89,11 @@ class VirtualMachine
     def on_complete(success, reason)
       dbg { "#{self.class}#on_complete success=#{success} reason=#{reason} id=#{vm.id}" }
 
-      FileUtils.mv(@tmp_file.path, file_path) if success
+      @tmp_file.close
+      FileUtils.mv(@tmp_file_path, file_path) if success
+      FileUtils.rm(@tmp_file_path, force: true) unless success
       cb = @block
-      f = @tmp_file
       cleanup
-      f.close
       cb.call(success, reason)
     end
 
@@ -93,6 +101,7 @@ class VirtualMachine
       @block = nil
       @stream = nil
       @tmp_file = nil
+      @tmp_file_path = nil
     end
 
     def logger

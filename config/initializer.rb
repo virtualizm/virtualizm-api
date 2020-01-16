@@ -14,13 +14,7 @@ Hypervisor.all.each do |hv|
 end
 LibvirtApp.logger.info "OK."
 
-LibvirtApp.logger.info "VM screenshot save starting..."
-VirtualMachine.all.each do |vm|
-  if vm.running?
-    ScreenshotTimers.add(vm)
-    LibvirtApp.logger.info "> VM #{vm.id} state is #{vm.state} so started"
-  else
-    LibvirtApp.logger.info "> VM #{vm.id} state is #{vm.state} so skipping"
-  end
+if ScreenshotTimers.enabled?
+  ScreenshotTimers.run
 end
-LibvirtApp.logger.info "OK."
+
