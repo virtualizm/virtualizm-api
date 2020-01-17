@@ -29,9 +29,9 @@ class LibvirtApp
     @servers[name] = server
   end
 
-  def setup_config
+  def setup_config(&block)
     @config = LibvirtConfig.new
-    @config.load!
+    @config.setup!(&block)
   end
 
   def setup_env(str)

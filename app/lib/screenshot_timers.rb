@@ -3,55 +3,113 @@ class ScreenshotTimers
   extend Forwardable
   extend SingleForwardable
 
-  TIMEOUT = LibvirtApp.config.screenshot_timeout
+  include LibvirtAsync::WithDbg
 
-  single_delegate [:add, :remove] => :instance
-  instance_delegate [:synchronize] => :_mutex
+  single_delegate [:add, :remove, :run, :enabled?] => :instance
+
+  def enabled?
+    LibvirtApp.config.screenshot_enabled
+  end
+
+  def run
+    Async.run_new do
+      logger.info "VM screenshot save starting..."
+      VirtualMachine.all.each do |vm|
+        if vm.running?
+          LibvirtApp.logger.info "> VM #{vm.id} state is #{vm.state} so started"
+          Async.schedule_new { ScreenshotTimers.add(vm) }
+          Async.current_reactor.sleep 2
+        else
+          LibvirtApp.logger.info "> VM #{vm.id} state is #{vm.state} so skipping"
+        end
+      end
+      LibvirtApp.logger.info "OK."
+    end
+  end
 
   # @param vm [VirtualMachine]
   # @param display [Integer] default 0
-  # @return [String, NilClass]
+  # @return [Boolean]
   def add(vm, display = 0)
-    synchronize do
-      key = key_for(vm, display)
-      return if timers.key?(key)
-      timers[key] = periodic_screenshot(vm, display)
-    end
+    key = key_for(vm, display)
+    return false if timers.key?(key)
+    initiate_screenshot(vm, display, true)
+    true
   end
 
   # @param vm [VirtualMachine]
   # @param display [Integer] default 0
+  # @return[Boolean]
   def remove(vm, display = 0)
-    synchronize do
-      key = key_for(vm, display)
-      h = timers.delete(key)
-      return if h.nil?
-      h[:timer].cancel
-      h[:streams].each(&:cancel)
-    end
-  end
-
-  def _mutex
-    @mutex ||= Mutex.new
+    key = key_for(vm, display)
+    return false unless timers.key?(key)
+    timer, stream = timers.delete(key)
+    timer.cancel
+    stream.cancel
+    true
   end
 
   private
 
-  # @param vm [VirtualMachine]
-  # @param display [Integer]
-  # @param stream [VirtualMachine::Screenshot]
-  def add_stream(vm, display, stream)
-    key = key_for(vm, display)
-    timers[key][:streams].push(stream)
+  def screenshot_timeout
+    LibvirtApp.config.screenshot_timeout
   end
 
   # @param vm [VirtualMachine]
   # @param display [Integer]
-  # @param stream [VirtualMachine::Screenshot]
-  def remove_stream(vm, display, stream)
+  # @param now [Boolean] run now (default false)
+  def initiate_screenshot(vm, display, now = false)
+    result = create_screenshot(vm, display, now) do
+      key = key_for(vm, display)
+      was_active = timers.key?(key)
+      initiate_screenshot(vm, display) if was_active
+    end
+
     key = key_for(vm, display)
-    return unless timers.key?(key)
-    timers[key][:streams].delete(stream)
+    timers[key] = result
+    nil
+  end
+
+  # @param vm [VirtualMachine]
+  # @param display [Integer]
+  # @param now [Boolean] run now or after timeout
+  # @return [Array] timer, stream
+  # @yield after screenshot completed or failed
+  def create_screenshot(vm, display, now, &block)
+    stream = create_stream(vm, display)
+
+    timeout = now ? 0 : screenshot_timeout
+
+    timer = Async.run_after(timeout) do
+      logger.debug { "#{self.class}#create_screenshot started vm.id=#{vm.id} display=#{display}" }
+      k = SecureRandom.hex(12)
+      TrackTime.start_track(vm, display, k)
+      stream.call do |success, reason|
+        file_path = file_path_for(vm, display)
+        spent = TrackTime.end_track(vm, display, k).to_s
+        logger.debug { "#{self.class}#create_screenshot completed success=#{success} reason=#{reason} vm.id=#{vm.id} display=#{display} file_path=#{file_path} spent=#{spent}ms" }
+        convert_screenshot(file_path) if success
+        block.call(success, reason)
+      end
+    end
+
+    [timer, stream]
+  end
+
+  # @param vm [VirtualMachine]
+  # @param display [Integer]
+  # @return [VirtualMachine::Screenshot]
+  def create_stream(vm, display)
+    file_path = file_path_for(vm, display)
+    VirtualMachine::Screenshot.new(vm, file_path: file_path, display: display)
+  end
+
+  # @param vm [VirtualMachine]
+  # @param display [Integer]
+  # @return [String]
+  def file_path_for(vm, display)
+    key = key_for(vm, display)
+    LibvirtApp.root.join("public/screenshots/#{key}.pnm")
   end
 
   # @param vm [VirtualMachine]
@@ -61,52 +119,19 @@ class ScreenshotTimers
     [vm.hypervisor.id, vm.id, display].join('_')
   end
 
-  # @param vm [VirtualMachine]
-  # @param display [Integer]
-  # @return [Hash]
-  def periodic_screenshot(vm, display)
-    logger.debug { "#{self.class}#periodic_screenshot started vm.id=#{vm.id} display=#{display}" }
-
-    reactor = Async::Task.current.reactor
-    first_stream = take_screenshot(vm, display)
-
-    timer = reactor.every(TIMEOUT) do
-      Async::Task.new(reactor, nil) do
-        stream = take_screenshot(vm, display)
-        add_stream(vm, display, stream) if stream
-      end.run
-    end
-
-    streams = []
-    streams.push(first_stream) if first_stream
-    { timer: timer, streams: streams }
-  end
-
-  # @param vm [VirtualMachine]
-  # @param display [Integer]
-  def take_screenshot(vm, display)
-    key = key_for(vm, display)
-    file_path = LibvirtApp.root.join("public/screenshots/#{key}.pnm")
-    stream = VirtualMachine::Screenshot.new(vm, file_path: file_path, display: display)
-
-    stream.call do |success, reason|
-      logger.debug { "#{self.class}#take_screenshot success=#{success} reason=#{reason} vm.id=#{vm.id} display=#{display} file_path=#{file_path}" }
-      remove_stream(vm, display, stream)
-      convert_screenshot(file_path) if success
-    end
-    stream
-  rescue StandardError => e
-    logger.error { "#{self.class}#take_screenshot unexpected exception vm.id=#{vm.id} display=#{display}" }
-    logger.error { "#{e.class}>: #{e.message}\n#{e.backtrace.join("\n")}" }
-  end
-
+  # @param file_path [String]
   def convert_screenshot(file_path)
-    output_file_path = file_path.to_s.gsub /\.pnm$/, '.png'
+    logger.debug { "#{self.class}#convert_screenshot started file_path=#{file_path}" }
+    output_file_path = file_path.to_s.gsub(/\.pnm$/, '.png')
 
-    image = MiniMagick::Image.open(file_path)
-    image.format('png')
-    image.write(output_file_path)
-    logger.debug { "#{self.class}#convert_screenshot success output_file_path=#{output_file_path}" }
+    TrackTime.track do
+      image = MiniMagick::Image.open(file_path)
+      image.format('png')
+      image.write(output_file_path)
+      image.destroy!
+    end
+    spent = TrackTime.last_track.to_s
+    logger.debug { "#{self.class}#convert_screenshot completed output_file_path=#{output_file_path} spent=#{spent}ms" }
   end
 
   def timers
@@ -116,7 +141,4 @@ class ScreenshotTimers
   def logger
     LibvirtApp.logger
   end
-
-  # initialize mutex while requiring code
-  instance._mutex
 end

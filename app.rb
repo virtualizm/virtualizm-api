@@ -16,6 +16,7 @@ require_relative 'lib/rack_improved_logger'
 require_relative 'lib/rack_x_request_id'
 require_relative 'lib/jsonapi/errors'
 require_relative 'lib/jsonapi/const'
+require_relative 'lib/async_util'
 
 # load application
 require_relative 'lib/libvirt_app'

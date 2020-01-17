@@ -1,16 +1,20 @@
 require 'active_support/all'
 require 'libvirt_async'
 require_relative '../../app/models/hypervisor'
+require_relative '../../app/lib/screenshot_timers'
+require_relative 'stub_chain'
 
 module StubLibvirt
   def wrap_application_load
     Hypervisor._storage = []
 
-    LibvirtAsync.stub(:register_implementations!, nil) do
-      Hypervisor.stub(:load_storage, nil) do
-        yield
-      end
-    end
+    chain = StubChain.new
+
+    chain.add_stub LibvirtAsync, :register_implementations!, nil
+    chain.add_stub Hypervisor, :load_storage, nil
+    chain.add_stub ScreenshotTimers, :enabled?, false
+
+    chain.use_stubs { yield }
   end
 
   module_function :wrap_application_load
