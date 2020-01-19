@@ -1,7 +1,5 @@
 require_relative 'config/environment'
 
-Dir.glob('app/**/*.rb').sort.each { |filename| require_relative filename }
-
 # initialize application
 require_relative 'config/initializer'
 

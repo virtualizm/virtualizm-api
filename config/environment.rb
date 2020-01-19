@@ -1,10 +1,7 @@
 require 'bundler'
 
 rack_env = ENV.fetch('RACK_ENV', 'development')
-Bundler.require(:default, rack_env) if defined?(Bundler)
-
-# load patches
-Dir.glob('../patches/*.rb').sort.each { |filename| require_relative filename }
+Bundler.require(:default, rack_env)
 
 # load local libs
 require_relative '../lib/rack_improved_logger'
@@ -25,4 +22,14 @@ LibvirtApp.setup_config do |config|
   )
   config.log_level = :debug
   config.cookie_name = 'libvirt-app.session'
+end
+
+# load patches
+Dir.glob(LibvirtApp.root.join('patches/*.rb')).sort.each do |filename|
+  require filename
+end
+
+# load app files
+Dir.glob(LibvirtApp.root.join('app/**/*.rb')).sort.each do |filename|
+  require filename
 end

@@ -1,3 +1,26 @@
+if ENV['RBTRACE']
+  require 'rbtrace'
+  STDOUT.puts 'RBTrace connected'
+end
+
+if ENV['MEMORY_DIAGNOSTIC']
+  require 'objspace'
+  ObjectSpace.trace_object_allocations_start
+  STDOUT.puts "OBJSpace trace started"
+end
+
+if ENV['MEMORY_PRINT']
+  require 'get_process_mem'
+  timeout = ENV['MEMORY_PRINT_TIMEOUT'] || 30
+  block = proc do
+    mem = GetProcessMem.new
+    # rss_bytes = `ps -f -p #{Process.pid} --no-headers -o rss`.to_i * 1024
+    STDOUT.puts "MEMORY USAGE #{mem.mb.round(4)} MB"
+  end
+  block.call
+  Async.run_every(timeout, &block)
+end
+
 LibvirtAsync.use_logger!(STDOUT)
 LibvirtAsync.logger.level = ENV['LIBVIRT_DEBUG'].present? ? :debug : :info
 LibvirtAsync.register_implementations!

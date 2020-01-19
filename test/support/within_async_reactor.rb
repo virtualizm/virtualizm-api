@@ -48,9 +48,27 @@ module WithinAsyncReactor
     result
   end
 
+  def async_timeout
+    ENV['ASYNC_TIMEOUT']
+  end
+
   def run
-    reactor = Async::Reactor.new(selector: Async::Debug::Selector.new)
-    timeout = ENV['ASYNC_TIMEOUT']
-    run_in_reactor(reactor, timeout) { super }
+    @__async_reactor = Async::Reactor.new(selector: Async::Debug::Selector.new)
+    run_in_reactor(@__async_reactor, async_timeout) { super }
+  end
+
+  def async_schedule(parent = nil, &block)
+    task = new_async_task(parent, &block)
+    task.reactor << task.fiber
+  end
+
+  def async_run(parent = nil, &block)
+    task = new_async_task(parent, &block)
+    task.run
+  end
+
+  def new_async_task(parent = nil, &block)
+    parent = Async::Task.current? if parent == :current
+    Async::Task.new(@__async_reactor, parent, &block)
   end
 end

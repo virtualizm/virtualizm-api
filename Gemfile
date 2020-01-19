@@ -1,8 +1,6 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '2.5.7'
-
 gem 'rake'
 
 # Utility classes and Ruby extensions.
@@ -53,6 +51,9 @@ gem 'mini_magick'
 
 group :development, :test do
   gem 'byebug'
+  gem 'rbtrace', require: false
+  gem 'get_process_mem', require: false
+  gem 'gc_tracer', require: false
 end
 
 group :test do
