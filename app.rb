@@ -1,25 +1,3 @@
-require 'active_support/all'
-require 'rack/protection'
-require 'rack/router'
-require 'async_cable'
-require 'libvirt'
-require 'libvirt_async'
-require 'jsonapi/serializable'
-require 'jsonapi/deserializable'
-require 'mini_magick'
-
-# load patches
-Dir.glob('patches/*.rb').sort.each { |filename| require_relative filename }
-
-# load local libs
-require_relative 'lib/rack_improved_logger'
-require_relative 'lib/rack_x_request_id'
-require_relative 'lib/jsonapi/errors'
-require_relative 'lib/jsonapi/const'
-require_relative 'lib/async_util'
-
-# load application
-require_relative 'lib/libvirt_app'
 require_relative 'config/environment'
 
 Dir.glob('app/**/*.rb').sort.each { |filename| require_relative filename }

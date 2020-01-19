@@ -9,3 +9,5 @@
 # public
 /public/screenshots/
 !/public/screenshots/.keep
+
+/tmp/
