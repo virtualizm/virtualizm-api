@@ -3,7 +3,9 @@ require 'libvirt_async/timer'
 require 'libvirt_async/util'
 require 'libvirt'
 
-LibvirtAsync::Handle.class_eval do
+STDOUT.puts 'LibvirtAsync PATCHES'
+
+module LibvirtAsyncHandlePatch
   private
 
   def dispatch(events)
@@ -22,7 +24,7 @@ LibvirtAsync::Handle.class_eval do
   end
 end
 
-LibvirtAsync::Timer.class_eval do
+module LibvirtAsyncTimerPatch
   private
 
   def dispatch
@@ -41,3 +43,6 @@ LibvirtAsync::Timer.class_eval do
     dbg { "#{self.class}#dispatch ends timer_id=#{timer_id}, interval=#{interval}" }
   end
 end
+
+LibvirtAsync::Handle.prepend LibvirtAsyncHandlePatch
+LibvirtAsync::Timer.prepend LibvirtAsyncTimerPatch

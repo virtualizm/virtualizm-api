@@ -1,12 +1,10 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '2.5.7'
-
 gem 'rake'
 
 # Utility classes and Ruby extensions.
-gem 'activesupport'
+gem 'activesupport', require: 'active_support/all'
 
 gem 'rack', '>= 2.1.0'
 
@@ -29,7 +27,7 @@ gem 'falcon'
 #   $ gem install ./ruby-libvirt-0.7.2.pre.streamfix.gem
 #   $ bundle install
 #
-gem 'ruby-libvirt', '0.7.2.pre.streamfix3.2'
+gem 'ruby-libvirt', '0.7.2.pre.streamfix3.2', require: 'libvirt'
 
 # Async libvirt event api implementation
 # https://github.com/senid231/libvirt_async
@@ -43,20 +41,19 @@ gem 'async_cable'
 # https://github.com/palkan/anyway_config
 gem 'anyway_config', '2.0.0.pre'
 
-# Parameters-based transformation DSL.
-# https://github.com/palkan/rubanok
-gem 'rubanok'
-
 # Efficiently produce and consume JSON API documents.
 # https://github.com/jsonapi-rb/jsonapi-rb
-gem 'jsonapi-rb'
+gem 'jsonapi-rb', require: %w(jsonapi/serializable jsonapi/deserializable)
 
-#
+# Convert images.
 # https://github.com/minimagick/minimagick
 gem 'mini_magick'
 
 group :development, :test do
   gem 'byebug'
+  gem 'rbtrace', require: false
+  gem 'get_process_mem', require: false
+  gem 'gc_tracer', require: false
 end
 
 group :test do

@@ -21,15 +21,21 @@ json_api_headers = { 'Accept': json_api_mime_type, 'Content-Type': json_api_mime
 login_body = { data: { type: 'sessions', attributes: { login: 'admin', password: 'password' } } }.to_json
 response = HTTParty.post('http://localhost:4567/api/sessions', body: login_body, headers: json_api_headers)
 
-puts "Response: #{response.code}\n#{response}"
+puts "Response: sessions code=#{response.code}\n#{response}"
 if response.code != 201
   exit 1
 end
 
-# cookies = response.headers['set-cookie']
-# cookies = cookies.join('') if cookies.is_a?(Array)
-# puts "Cookie: ##{cookies}"
-#
+cookies = response.headers['set-cookie']
+cookies = cookies.join('') if cookies.is_a?(Array)
+puts "Cookie: ##{cookies}"
+
+headers = { 'Accept': json_api_mime_type, 'Content-Type': json_api_mime_type, Cookie: cookies }
+while true do
+  response = HTTParty.get('http://localhost:4567/api/virtual-machines', headers: headers)
+  puts "Response virtual-machines code=#{response.code} body.size=#{response.size}"
+end
+
 # ws_headers = { 'Cookie': cookies }
 # received = []
 # closed = false

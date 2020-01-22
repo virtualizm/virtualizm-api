@@ -116,7 +116,7 @@ class ScreenshotTimers
   # @param display [Integer] default 0
   # @return [String]
   def key_for(vm, display)
-    [vm.hypervisor.id, vm.id, display].join('_')
+    display == 0 ? vm.id : "#{vm.id}_#{display}"
   end
 
   # @param file_path [String]
@@ -128,6 +128,7 @@ class ScreenshotTimers
       image = MiniMagick::Image.open(file_path)
       image.format('png')
       image.write(output_file_path)
+      image.tempfile.close
       image.destroy!
     end
     spent = TrackTime.last_track.to_s
