@@ -128,6 +128,7 @@ class ScreenshotTimers
       image = MiniMagick::Image.open(file_path)
       image.format('png')
       image.write(output_file_path)
+      image.tempfile.close
       image.destroy!
     end
     spent = TrackTime.last_track.to_s

@@ -50,9 +50,8 @@ class VirtualMachine
       # @tmp_file_path = @tmp_file.path
       @tmp_file_path = "/tmp/libvirt_screenshot_tmp_#{SecureRandom.hex(32)}_#{Time.now.to_i}"
       fd = IO.sysopen(@tmp_file_path, 'wb')
-      io = IO.new(fd, autoclose: false)
+      io = IO.new(fd)
       io_wrapper = Async::IO::Generic.new(io)
-      # @tmp_file = Async::IO::Stream.new(io_wrapper, deferred: true)
       @tmp_file = Async::IO::Stream.new(io_wrapper)
 
       dbg { "#{self.class}#call tmp file created tmp vm.id=#{vm.id}, tmp_file.path=#{@tmp_file_path}" }
@@ -98,6 +97,9 @@ class VirtualMachine
     end
 
     def cleanup
+      @tmp_file&.close
+      FileUtils.rm(@tmp_file_path, force: true) if @tmp_file_path && File.exist?(@tmp_file_path)
+
       @block = nil
       @stream = nil
       @tmp_file = nil
