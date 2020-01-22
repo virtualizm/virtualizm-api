@@ -116,7 +116,7 @@ class ScreenshotTimers
   # @param display [Integer] default 0
   # @return [String]
   def key_for(vm, display)
-    [vm.hypervisor.id, vm.id, display].join('_')
+    display == 0 ? vm.id : "#{vm.id}_#{display}"
   end
 
   # @param file_path [String]
