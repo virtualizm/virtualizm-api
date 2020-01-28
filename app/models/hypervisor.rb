@@ -7,7 +7,7 @@ class Hypervisor
     def load_storage(clusters)
       dbg { "#{name}.load_storage #{clusters}" }
       self._storage = clusters.map do |cluster|
-        Hypervisor.new(id: cluster['id'], name: cluster['name'], uri: cluster['uri'])
+        Hypervisor.new(**cluster.symbolize_keys)
       end
       dbg { "#{name}.load_storage loaded size=#{_storage.size}" }
     end
@@ -30,6 +30,7 @@ class Hypervisor
   attr_reader :id,
               :name,
               :uri,
+              :ws_endpoint,
               :virtual_machines
 
   attr_accessor :version,
@@ -47,12 +48,13 @@ class Hypervisor
                 :free_memory,
                 :capabilities
 
-  def initialize(id:, name:, uri:)
+  def initialize(id:, name:, uri:, ws_endpoint:)
     dbg { "#{self.class}#initialize id=#{id}, name=#{name}, uri=#{uri}" }
 
     @id = id
     @name = name
     @uri = uri
+    @ws_endpoint = ws_endpoint
 
     #force connect to initialize events callbacks
     connection

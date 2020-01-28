@@ -1,10 +1,13 @@
 require_relative 'base_controller'
+require_relative 'concerns/user_authentication'
 
 class JsonApiController < BaseController
   rescue_from StandardError, with: :json_api_exception
 
   class_attribute :renderer, instance_writer: false, default: JSONAPI::Serializable::Renderer.new
   class_attribute :resource_class, instance_writer: false
+
+  include Concerns::UserAuthentication
 
   def index
     json_api_verify_env!
@@ -53,11 +56,6 @@ class JsonApiController < BaseController
 
   def authenticate_current_user!
     raise JSONAPI::Errors::UnauthorizedError if current_user.nil?
-  end
-
-  def current_user
-    return @current_user if defined?(@current_user)
-    @current_user = User.find_by id: session['user_id']
   end
 
   def json_api_response_body(object, klass, options)

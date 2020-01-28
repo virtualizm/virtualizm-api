@@ -44,6 +44,8 @@ gem 'jsonapi-rb', require: %w(jsonapi/serializable jsonapi/deserializable)
 # https://github.com/minimagick/minimagick
 gem 'mini_magick'
 
+gem 'nokogiri'
+
 group :development, :test do
   gem 'byebug'
   gem 'rbtrace', require: false

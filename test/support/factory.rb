@@ -59,6 +59,7 @@ class Factory
     id = attrs.delete(:id)
     uri = attrs.delete(:uri)
     name = attrs.delete(:name)
+    ws_endpoint = attrs.delete(:ws_endpoint)
     conn_struct = create_struct(attrs) do
       def register_domain_event_callback(_ev, _dom = nil, _opaque = nil, &block)
         nil
@@ -72,7 +73,7 @@ class Factory
     end
 
     Libvirt::Connection.stub(:new, conn_struct) do
-      Hypervisor.new(id: id, name: name, uri: uri)
+      Hypervisor.new(id: id, name: name, uri: uri, ws_endpoint: ws_endpoint)
     end
   end
 
@@ -80,6 +81,8 @@ class Factory
     {
         id: sequence,
         name: 'test',
+        uri: 'uri',
+        ws_endpoint: 'ws',
         version: '1.0',
         lib_version: '1.0',
         hostname: 'test',

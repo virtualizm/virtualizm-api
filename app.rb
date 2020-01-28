@@ -40,6 +40,8 @@ LibvirtApp.app = Rack::Builder.new do
 
       get '/virtual-machines', [VirtualMachinesController, :index]
       get '/virtual-machines/:id', [VirtualMachinesController, :show]
+
+      get '/spice/:id', [SpiceController, :show]
     end
   end
 

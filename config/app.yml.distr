@@ -2,6 +2,7 @@ clusters:
   - id: 1
     name: hypervisor.libvirt
     uri: 'qemu+tcp://127.0.0.1:16509/system'
+    ws_endpoint: 'https://127.0.0.1:3000/ws'
 users:
   - id: 1
     login: admin
