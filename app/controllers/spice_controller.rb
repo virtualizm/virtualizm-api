@@ -9,6 +9,7 @@ class SpiceController < BaseController
   include Concerns::UserAuthentication
 
   before_action :authenticate_current_user!
+  rescue_from UnauthorizedError, with: :respond_401
 
   def show
     id = path_params[:id]
@@ -27,6 +28,10 @@ class SpiceController < BaseController
   end
 
   private
+
+  def respond_401(_e)
+    response(status: 401, body: nil)
+  end
 
   def authenticate_current_user!
     raise UnauthorizedError if current_user.nil?

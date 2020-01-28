@@ -40,14 +40,28 @@ class RequestTestCase < Minitest::Test
     delete url, params
   end
 
+  def assert_response_headers(expected_headers)
+    actual_headers = last_response.headers.transform_keys { |k| k.downcase.to_sym }
+    failure_msg = proc { "Expected headers #{expected_headers}, but got #{actual_headers}\n#{last_response.body}" }
+    expected = expected_headers.transform_keys { |k| k.to_s.downcase.to_sym }
+    actual = actual_headers.slice(*expected_headers.keys)
+    assert_equal expected, actual, failure_msg
+  end
+
   def assert_http_status(expected_status)
     failure_msg = proc { "Expected response status to be #{expected_status}, but got #{last_response.status}\n#{last_response_json || last_response.body}" }
     assert_equal expected_status, last_response.status, failure_msg
   end
 
+  # @param expected_body [String]
+  def assert_response_body(expected_body)
+    failure_msg = proc { "Expected body to be #{expected_body.inspect}, but got #{last_response.body.inspect}" }
+    assert_equal expected_body, last_response.body, failure_msg
+  end
+
   # @param expected_body [Hash]
   def assert_json_body(expected_body)
-    failure_msg = proc { "Expected #{expected_body.inspect} to equal #{last_response_json.inspect}" }
+    failure_msg = proc { "Expected json body to be #{expected_body.inspect}, but got #{last_response_json.inspect}" }
     assert_equal expected_body, last_response_json, failure_msg
   end
 
