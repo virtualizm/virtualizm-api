@@ -57,7 +57,7 @@ Hypervisor.all.each do |hv|
 end
 LibvirtApp.logger.info "OK."
 
-# if ScreenshotTimers.enabled?
-#   ScreenshotTimers.run
-# end
+if ScreenshotTimers.enabled?
+  ScreenshotTimers.run
+end
 
