@@ -182,7 +182,7 @@ class VirtualMachine
   end
 
   def get_state
-    libvirt_state, _ = domain.state
+    libvirt_state, _ = domain.get_state
     STATES[libvirt_state]
   end
 

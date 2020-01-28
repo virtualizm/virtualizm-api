@@ -60,15 +60,18 @@ class Factory
     uri = attrs.delete(:uri)
     name = attrs.delete(:name)
     conn_struct = create_struct(attrs) do
-      def domain_event_register_any(_ev, _cb, _dom = nil, _opaque = nil)
+      def register_domain_event_callback(_ev, _dom = nil, _opaque = nil, &block)
         nil
       end
       def list_all_domains
         []
       end
+      def open
+        true
+      end
     end
 
-    Libvirt.stub(:open, conn_struct) do
+    Libvirt::Connection.stub(:new, conn_struct) do
       Hypervisor.new(id: id, name: name, uri: uri)
     end
   end
@@ -78,7 +81,7 @@ class Factory
         id: sequence,
         name: 'test',
         version: '1.0',
-        libversion: '1.0',
+        lib_version: '1.0',
         hostname: 'test',
         max_vcpus: 4,
         capabilities: [],
@@ -112,7 +115,7 @@ class Factory
     {
         uuid: SecureRandom.uuid,
         name: 'test_dom',
-        state: [VirtualMachine::STATE_RUNNING, 0],
+        get_state: [VirtualMachine::STATE_RUNNING, 0],
         max_vcpus: '1',
         vcpus: [Object.new],
         max_memory: '512MB',
@@ -122,7 +125,7 @@ class Factory
 
   define_trait :virtual_machine, :shut_off do
     {
-        state: [5, 0]
+        get_state: [5, 0]
     }
   end
 

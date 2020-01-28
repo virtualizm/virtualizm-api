@@ -22,16 +22,11 @@ gem 'rack_router', '>= 0.1.2'
 # https://github.com/socketry/falcon
 gem 'falcon'
 
-# https://bugzilla.redhat.com/show_bug.cgi?id=1787914
-# Use patched version of gem until issue resolved.
-#   $ gem install ./ruby-libvirt-0.7.2.pre.streamfix.gem
-#   $ bundle install
-#
-gem 'ruby-libvirt', '0.7.2.pre.streamfix3.2', require: 'libvirt'
+gem 'libvirt_ffi', '~> 0.2'
 
 # Async libvirt event api implementation
 # https://github.com/senid231/libvirt_async
-gem 'libvirt_async', '~> 0.1'
+gem 'libvirt_async', '~> 0.3'
 
 # Very simple but functional websocket server for Rack async application.
 # https://github.com/seni231/async_cable

@@ -210,7 +210,6 @@ class TestVirtualMachines < RequestTestCase
                      ]
   end
 
-
   def test_get_virtual_machines_show
     user = User.all.first
     raw_cookie = sign_in_for_cookie(user)

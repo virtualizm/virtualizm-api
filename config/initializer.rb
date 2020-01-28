@@ -21,6 +21,26 @@ if ENV['MEMORY_PRINT']
   Async.run_every(timeout, &block)
 end
 
+if ENV['GC_TRACE']
+  require 'gc_tracer'
+  GC::Tracer.start_logging(
+      nil,
+      gc_stat: false,
+      gc_latest_gc_info: false,
+      rusage: false,
+      #tick_type: :hw_counter,
+      events: [
+          :start,
+          :end_mark,
+          :end_sweep,
+          :enter,
+          :exit,
+          # :newobj,
+          # :freeobj
+      ]
+  )
+end
+
 LibvirtAsync.use_logger!(STDOUT)
 LibvirtAsync.logger.level = ENV['LIBVIRT_DEBUG'].present? ? :debug : :info
 LibvirtAsync.register_implementations!
@@ -37,7 +57,7 @@ Hypervisor.all.each do |hv|
 end
 LibvirtApp.logger.info "OK."
 
-if ScreenshotTimers.enabled?
-  ScreenshotTimers.run
-end
+# if ScreenshotTimers.enabled?
+#   ScreenshotTimers.run
+# end
 

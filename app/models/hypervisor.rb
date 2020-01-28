@@ -85,23 +85,19 @@ class Hypervisor
   end
 
   def _open_connection
-    if LibvirtApp.config.libvirt_rw
-      dbg { "#{self.class}#_open_connection Opening RW connection to name=#{name} id=#{id}, uri=#{uri}" }
-      c = Libvirt::open(uri)
-    else
-      dbg { "#{self.class}#_open_connection Opening RO connection to name=#{name} id=#{id}, uri=#{uri}" }
-      c = Libvirt::open_read_only(uri)
-    end
+    dbg { "#{self.class}#_open_connection Opening RW connection to name=#{name} id=#{id}, uri=#{uri}" }
+    c = Libvirt::Connection.new(uri)
+    c.open
 
     dbg { "#{self.class}#_open_connection Connected name=#{name} id=#{id}, uri=#{uri}" }
 
-    # c.keepalive = [10, 2]
+    # c.set_keep_alive(10, 2)
     c
   end
 
   def setup_attributes
     self.version = connection.version
-    self.libversion = connection.libversion
+    self.libversion = connection.lib_version
     self.hostname = connection.hostname
     self.max_vcpus = connection.max_vcpus
     self.capabilities = connection.capabilities
@@ -119,40 +115,40 @@ class Hypervisor
   end
 
   def register_dom_event_callbacks
-    connection.domain_event_register_any(
-        Libvirt::Connect::DOMAIN_EVENT_ID_REBOOT,
-        method(:dom_event_callback_reboot).to_proc
+    # connection.domain_event_register_any(
+    #     Libvirt::Connect::DOMAIN_EVENT_ID_REBOOT,
+    #     method(:dom_event_callback_reboot).to_proc
+    # )
+
+    connection.register_domain_event_callback(
+        Libvirt::DOMAIN_EVENT_ID_LIFECYCLE,
+        &method(:dom_event_callback_lifecycle)
     )
 
-    connection.domain_event_register_any(
-        Libvirt::Connect::DOMAIN_EVENT_ID_LIFECYCLE,
-        method(:dom_event_callback_lifecycle).to_proc
-    )
-
-    connection.domain_event_register_any(
-        Libvirt::Connect::DOMAIN_EVENT_ID_RTC_CHANGE,
-        method(:dom_event_callback_rtc_change).to_proc
-    )
-
-    connection.domain_event_register_any(
-        Libvirt::Connect::DOMAIN_EVENT_ID_WATCHDOG,
-        method(:dom_event_callback_watchdog).to_proc
-    )
-
-    connection.domain_event_register_any(
-        Libvirt::Connect::DOMAIN_EVENT_ID_IO_ERROR,
-        method(:dom_event_callback_io_error).to_proc
-    )
-
-    connection.domain_event_register_any(
-        Libvirt::Connect::DOMAIN_EVENT_ID_IO_ERROR_REASON,
-        method(:dom_event_callback_io_error_reason).to_proc
-    )
-
-    connection.domain_event_register_any(
-        Libvirt::Connect::DOMAIN_EVENT_ID_GRAPHICS,
-        method(:dom_event_callback_graphics).to_proc
-    )
+    # connection.domain_event_register_any(
+    #     Libvirt::Connect::DOMAIN_EVENT_ID_RTC_CHANGE,
+    #     method(:dom_event_callback_rtc_change).to_proc
+    # )
+    #
+    # connection.domain_event_register_any(
+    #     Libvirt::Connect::DOMAIN_EVENT_ID_WATCHDOG,
+    #     method(:dom_event_callback_watchdog).to_proc
+    # )
+    #
+    # connection.domain_event_register_any(
+    #     Libvirt::Connect::DOMAIN_EVENT_ID_IO_ERROR,
+    #     method(:dom_event_callback_io_error).to_proc
+    # )
+    #
+    # connection.domain_event_register_any(
+    #     Libvirt::Connect::DOMAIN_EVENT_ID_IO_ERROR_REASON,
+    #     method(:dom_event_callback_io_error_reason).to_proc
+    # )
+    #
+    # connection.domain_event_register_any(
+    #     Libvirt::Connect::DOMAIN_EVENT_ID_GRAPHICS,
+    #     method(:dom_event_callback_graphics).to_proc
+    # )
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_REBOOT
