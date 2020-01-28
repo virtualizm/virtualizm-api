@@ -157,8 +157,8 @@ class Hypervisor
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_LIFECYCLE
-  def dom_event_callback_lifecycle(_conn, dom, event, detail, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT LIFECYCLE hv.id=#{id}, vm.id=#{dom.uuid}, event=#{event}, detail=#{detail}" }
+  def dom_event_callback_lifecycle(dom, event, detail, _opaque)
+    LibvirtApp.logger.info { "DOMAIN EVENT LIFECYCLE hv.id=#{id}, vm.id=#{dom}, event=#{event}, detail=#{detail}" }
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_RTC_CHANGE
