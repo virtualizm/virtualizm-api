@@ -30,11 +30,11 @@ if ENV['GC_TRACE']
       rusage: false,
       #tick_type: :hw_counter,
       events: [
-          :start,
-          :end_mark,
+          # :start,
+          # :end_mark,
           :end_sweep,
-          :enter,
-          :exit,
+          # :enter,
+          # :exit,
           # :newobj,
           # :freeobj
       ]

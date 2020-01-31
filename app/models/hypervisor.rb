@@ -117,40 +117,40 @@ class Hypervisor
   end
 
   def register_dom_event_callbacks
-    # connection.domain_event_register_any(
-    #     Libvirt::Connect::DOMAIN_EVENT_ID_REBOOT,
-    #     method(:dom_event_callback_reboot).to_proc
-    # )
+    connection.register_domain_event_callback(
+        :REBOOT,
+        &method(:dom_event_callback_reboot)
+    )
 
     connection.register_domain_event_callback(
-        Libvirt::DOMAIN_EVENT_ID_LIFECYCLE,
+        :LIFECYCLE,
         &method(:dom_event_callback_lifecycle)
     )
 
-    # connection.domain_event_register_any(
-    #     Libvirt::Connect::DOMAIN_EVENT_ID_RTC_CHANGE,
-    #     method(:dom_event_callback_rtc_change).to_proc
-    # )
-    #
-    # connection.domain_event_register_any(
-    #     Libvirt::Connect::DOMAIN_EVENT_ID_WATCHDOG,
-    #     method(:dom_event_callback_watchdog).to_proc
-    # )
-    #
-    # connection.domain_event_register_any(
-    #     Libvirt::Connect::DOMAIN_EVENT_ID_IO_ERROR,
-    #     method(:dom_event_callback_io_error).to_proc
-    # )
-    #
-    # connection.domain_event_register_any(
-    #     Libvirt::Connect::DOMAIN_EVENT_ID_IO_ERROR_REASON,
-    #     method(:dom_event_callback_io_error_reason).to_proc
-    # )
-    #
-    # connection.domain_event_register_any(
-    #     Libvirt::Connect::DOMAIN_EVENT_ID_GRAPHICS,
-    #     method(:dom_event_callback_graphics).to_proc
-    # )
+    connection.register_domain_event_callback(
+        :RTC_CHANGE,
+        &method(:dom_event_callback_rtc_change)
+    )
+
+    connection.register_domain_event_callback(
+        :WATCHDOG,
+        &method(:dom_event_callback_watchdog)
+    )
+
+    connection.register_domain_event_callback(
+        :IO_ERROR,
+        &method(:dom_event_callback_io_error)
+    )
+
+    connection.register_domain_event_callback(
+        :IO_ERROR_REASON,
+        &method(:dom_event_callback_io_error_reason)
+    )
+
+    connection.register_domain_event_callback(
+        :GRAPHICS,
+        &method(:dom_event_callback_graphics)
+    )
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_REBOOT
