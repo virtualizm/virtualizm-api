@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BaseCable < AsyncCable::Connection
   def on_data(data)
     logger.info { "#{self.class}/#{self.object_id.to_s(16)}/#{current_user.id} received #{data.inspect}" }

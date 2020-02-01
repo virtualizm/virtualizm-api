@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 if ENV['RBTRACE']
   require 'rbtrace'
   STDOUT.puts 'RBTrace connected'

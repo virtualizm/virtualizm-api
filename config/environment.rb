@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bundler'
 
 rack_env = ENV.fetch('RACK_ENV', 'development')

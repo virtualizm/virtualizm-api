@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rack::Response.class_eval do
   def finish(&block)
     if Rack::Response::STATUS_WITH_NO_ENTITY_BODY[status.to_i] && status.to_i != 101

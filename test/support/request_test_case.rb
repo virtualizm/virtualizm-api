@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'within_async_reactor'
 require_relative 'within_cache_methods'
 

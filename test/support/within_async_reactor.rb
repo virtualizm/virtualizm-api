@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'async/debug/selector'
 require 'active_support/concern'
 

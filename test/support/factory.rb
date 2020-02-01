@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Factory
   class_attribute :_factories, instance_writer: false, default: {}
   class_attribute :_traits, instance_writer: false, default: (Hash.new { |h, k| h[k] = {} })

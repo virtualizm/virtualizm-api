@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rake/testtask'
 
 task_files = FileList.new('lib/tasks/*.rake')

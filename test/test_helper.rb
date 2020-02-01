@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # test_helper.rb
 ENV['RACK_ENV'] = 'test'
 

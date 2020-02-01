@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'base_controller'
 require_relative 'concerns/user_authentication'
 

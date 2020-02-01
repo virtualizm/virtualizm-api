@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class User
   class_attribute :_storage, instance_accessor: false
 

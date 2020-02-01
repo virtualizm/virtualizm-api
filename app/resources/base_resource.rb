@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BaseResource
   class_attribute :_filters, instance_accessor: false, default: {}
   class_attribute :_object_class_name, instance_accessor: false

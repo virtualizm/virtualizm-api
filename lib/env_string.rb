@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class EnvString
   def initialize(str)
     @str = str

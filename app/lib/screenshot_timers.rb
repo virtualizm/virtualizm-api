@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ScreenshotTimers
   include Singleton
   extend Forwardable

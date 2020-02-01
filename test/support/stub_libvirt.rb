@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_support/all'
 require 'libvirt_async'
 require_relative '../../app/models/hypervisor'

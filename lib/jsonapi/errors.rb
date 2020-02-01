@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module JSONAPI
   module Errors
     class Serializable < JSONAPI::Serializable::Error

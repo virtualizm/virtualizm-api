@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module TrackTime
   mattr_accessor :storage, instance_writer: false, default: {}
   mattr_accessor :_last_track, instance_writer: false, default: nil

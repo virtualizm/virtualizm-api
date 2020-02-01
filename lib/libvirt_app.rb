@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'libvirt_config'
 require_relative 'env_string'
 
