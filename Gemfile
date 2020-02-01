@@ -28,7 +28,7 @@ gem 'libvirt_ffi', github: 'senid231/libvirt_ffi'
 
 # Async libvirt event api implementation
 # https://github.com/senid231/libvirt_async
-gem 'libvirt_async', '~> 0.3'
+gem 'libvirt_async', github: 'senid231/libvirt_async'
 
 # Very simple but functional websocket server for Rack async application.
 # https://github.com/seni231/async_cable

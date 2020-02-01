@@ -1,8 +1,17 @@
 GIT
-  remote: https://github.com/senid231/libvirt_ffi.git
-  revision: 42e0f69d10696d3d1be81b5110273573cb92da7d
+  remote: https://github.com/senid231/libvirt_async.git
+  revision: 8be3f07dfdce81f64f83874137d536c96ca8af75
   specs:
-    libvirt_ffi (0.4.0)
+    libvirt_async (0.3.2)
+      activesupport
+      async (~> 1.24)
+      libvirt_ffi
+
+GIT
+  remote: https://github.com/senid231/libvirt_ffi.git
+  revision: 8e1756f14cbf6fa12c8549d6595a63da389cb228
+  specs:
+    libvirt_ffi (0.4.1)
       ffi (>= 1.0)
 
 GEM
@@ -75,10 +84,6 @@ GEM
     jsonapi-renderer (0.2.2)
     jsonapi-serializable (0.3.1)
       jsonapi-renderer (~> 0.2.0)
-    libvirt_async (0.3.2)
-      activesupport
-      async (~> 1.24)
-      libvirt_ffi
     localhost (1.1.6)
     mapping (1.1.1)
     mime-types (3.3.1)
@@ -154,7 +159,7 @@ DEPENDENCIES
   get_process_mem
   httparty
   jsonapi-rb
-  libvirt_async (~> 0.3)
+  libvirt_async!
   libvirt_ffi!
   mini_magick
   minitest
