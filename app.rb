@@ -3,7 +3,15 @@
 require_relative 'config/environment'
 
 # initialize application
-require_relative 'config/initializer'
+begin
+  require_relative 'config/initializer'
+rescue => e
+  STDERR.puts "<#{e.class}>: #{e.message}", e.backtrace
+  STDERR.puts 'Caused by:', "<#{e.cause.class}>: #{e.cause.message}", e.cause.backtrace if e.cause
+  Async.schedule_new do
+    Process.kill('TERM', Process.pid) # will stop falcon server with exit code 15
+  end
+end
 
 LibvirtApp.add_server :api_cable, AsyncCable::Server.new(connection_class: ApiCable)
 

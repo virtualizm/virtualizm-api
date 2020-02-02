@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/senid231/libvirt_ffi.git
-  revision: 8e1756f14cbf6fa12c8549d6595a63da389cb228
+  revision: 683897cf01a9d374fda71c25a3a2613a5fc15fb4
   specs:
     libvirt_ffi (0.4.1)
       ffi (>= 1.0)

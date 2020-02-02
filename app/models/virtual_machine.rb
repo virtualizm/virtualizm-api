@@ -179,7 +179,7 @@ class VirtualMachine
     if running?
       domain.max_vcpus
     else
-      domain.vcpus.count
+      # domain.vcpus.count
     end
   end
 
@@ -197,6 +197,15 @@ class VirtualMachine
   # @return [VirtualMachine::Screenshot] respond to #cancel which will cancel screenshot saving.
   def take_screenshot(file_path, display: 0, &block)
     Screenshot.call(self, file_path: file_path, display: display, &block)
+  end
+
+  def on_event(event_id, opaque = nil, &block)
+    hypervisor.on_domain_event(
+        event_id,
+        domain,
+        opaque,
+        &block
+    )
   end
 
   # def start

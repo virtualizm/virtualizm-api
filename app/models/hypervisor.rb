@@ -57,6 +57,7 @@ class Hypervisor
     @name = name
     @uri = uri
     @ws_endpoint = ws_endpoint
+    @dom_cb_ids = []
 
     #force connect to initialize events callbacks
     connection
@@ -78,6 +79,25 @@ class Hypervisor
         id: @id,
         name: @name
     }
+  end
+
+  def on_domain_event(event_id, domain = nil, opaque = nil, &block)
+    callback_id = connection.register_domain_event_callback(
+        event_id,
+        domain,
+        opaque,
+        &block
+    )
+    @dom_cb_ids.push(callback_id)
+    callback_id
+  end
+
+  def deregister_all_domain_events
+    @dom_cb_ids.each do |callback_id|
+      connection.deregister_domain_event_callback(callback_id)
+      @dom_cb_ids.delete(callback_id)
+    end
+    true
   end
 
   private
@@ -119,37 +139,37 @@ class Hypervisor
   end
 
   def register_dom_event_callbacks
-    connection.register_domain_event_callback(
+    on_domain_event(
         :REBOOT,
         &method(:dom_event_callback_reboot)
     )
 
-    connection.register_domain_event_callback(
+    on_domain_event(
         :LIFECYCLE,
         &method(:dom_event_callback_lifecycle)
     )
 
-    connection.register_domain_event_callback(
+    on_domain_event(
         :RTC_CHANGE,
         &method(:dom_event_callback_rtc_change)
     )
 
-    connection.register_domain_event_callback(
+    on_domain_event(
         :WATCHDOG,
         &method(:dom_event_callback_watchdog)
     )
 
-    connection.register_domain_event_callback(
+    on_domain_event(
         :IO_ERROR,
         &method(:dom_event_callback_io_error)
     )
 
-    connection.register_domain_event_callback(
+    on_domain_event(
         :IO_ERROR_REASON,
         &method(:dom_event_callback_io_error_reason)
     )
 
-    connection.register_domain_event_callback(
+    on_domain_event(
         :GRAPHICS,
         &method(:dom_event_callback_graphics)
     )
@@ -161,8 +181,8 @@ class Hypervisor
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_LIFECYCLE
-  def dom_event_callback_lifecycle(dom, event, detail, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT LIFECYCLE hv.id=#{id}, vm.id=#{dom}, event=#{event}, detail=#{detail}" }
+  def dom_event_callback_lifecycle(_conn, dom, event, detail, _opaque)
+    LibvirtApp.logger.info { "DOMAIN EVENT LIFECYCLE hv.id=#{id}, vm.id=#{dom.uuid}, event=#{event}, detail=#{detail}" }
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_RTC_CHANGE

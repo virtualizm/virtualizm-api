@@ -13,7 +13,9 @@ class ScreenshotTimers
     LibvirtApp.config.screenshot_enabled
   end
 
-  def run
+  def run(timeout)
+    @screenshot_timeout = timeout
+
     Async.run_new do
       logger.info "VM screenshot save starting..."
       VirtualMachine.all.each do |vm|
@@ -54,7 +56,7 @@ class ScreenshotTimers
   private
 
   def screenshot_timeout
-    LibvirtApp.config.screenshot_timeout
+    @screenshot_timeout
   end
 
   # @param vm [VirtualMachine]
@@ -90,6 +92,7 @@ class ScreenshotTimers
         file_path = file_path_for(vm, display)
         spent = TrackTime.end_track(vm, display, k).to_s
         logger.debug { "#{self.class}#create_screenshot completed success=#{success} reason=#{reason} vm.id=#{vm.id} display=#{display} file_path=#{file_path} spent=#{spent}ms" }
+        logger.info { "[#{self.class}] screenshot #{success ? 'saved' : 'failed'} for #{vm.id} at file_path" }
         convert_screenshot(file_path) if success
         block.call(success, reason)
       end

@@ -16,8 +16,6 @@ class LibvirtConfig < Anyway::Config
               :cookie_secret,
               :libvirt_rw,
               :serve_static,
-              :screenshot_timeout,
-              :screenshot_enabled,
               :cookie_name,
               :logger
 
@@ -25,9 +23,7 @@ class LibvirtConfig < Anyway::Config
                   :clusters,
                   :cookie_secret,
                   :libvirt_rw,
-                  :serve_static,
-                  :screenshot_timeout,
-                  :screenshot_enabled
+                  :serve_static
 
   def log_level
     logger.level

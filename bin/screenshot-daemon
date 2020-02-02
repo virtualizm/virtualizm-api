@@ -1,0 +1,68 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+
+options = { timeout: 30, debug: !!ENV['DEBUG'], quiet: false }
+OptionParser.new do |opts|
+  opts.banner = 'Usage: screenshot-daemon [options]'
+
+  opts.on('-tN', '--timeout=N', 'take screenshot every N seconds (default 30)') do |timeout|
+    options[:timeout] = Float(timeout)
+  end
+
+  opts.on('-d', '--[no-]debug', 'Debug logging') do |debug|
+    options[:debug] = debug
+  end
+
+  opts.on('-q', '--[no-]quiet', 'no logging') do |quiet|
+    options[:quiet] = quiet
+  end
+end.parse!
+
+STDOUT.puts 'Starting Screenshot Daemon',
+            "Debug: #{options[:debug]}",
+            "Timeout: #{options[:timeout]}",
+            "Quiet: #{options[:quiet]}",
+            "PID: #{Process.pid}"
+
+require_relative '../config/environment'
+require_relative '../lib/screenshot_timers'
+
+LibvirtApp.logger.level = options[:debug] ? :debug : :info
+LibvirtApp.logger = nil if options[:quiet]
+
+Async::Reactor.run do
+  begin
+    require_relative '../config/initializer'
+  rescue => e
+    STDERR.puts "<#{e.class}>: #{e.message}", e.backtrace
+    STDERR.puts 'Caused by:', "<#{e.cause.class}>: #{e.cause.message}", e.cause.backtrace if e.cause
+    exit 1
+  end
+
+  Hypervisor.all.each do |hv|
+    hv.deregister_all_domain_events
+  end
+
+  ScreenshotTimers.run options[:timeout]
+
+  VirtualMachine.all.each do |vm|
+    vm.on_event(:LIFECYCLE) do |_conn, _dom, event, detail, _op|
+      case event
+      when :STOPPED
+        LibvirtApp.logger.info { "VM #{vm.name} [#{vm.id}] stopped (#{detail}) - removing screenshot timer" }
+        ScreenshotTimers.remove(vm)
+      when :STARTED
+        LibvirtApp.logger.info { "VM #{vm.name} [#{vm.id}] started (#{detail}) - adding screenshot timer" }
+        ScreenshotTimers.add(vm)
+      when :CRASHED
+        LibvirtApp.logger.info { "VM #{vm.name} [#{vm.id}] crashed (#{detail}) - removing screenshot timer" }
+        ScreenshotTimers.remove(vm)
+      else
+        # ignore
+      end
+    end
+  end
+
+end
