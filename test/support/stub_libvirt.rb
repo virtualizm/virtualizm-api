@@ -3,7 +3,6 @@
 require 'active_support/all'
 require 'libvirt_async'
 require_relative '../../app/models/hypervisor'
-require_relative '../../app/lib/screenshot_timers'
 require_relative 'stub_chain'
 
 module StubLibvirt
@@ -14,7 +13,6 @@ module StubLibvirt
 
     chain.add_stub LibvirtAsync, :register_implementations!, nil
     chain.add_stub Hypervisor, :load_storage, nil
-    chain.add_stub ScreenshotTimers, :enabled?, false
 
     chain.use_stubs { yield }
   end
