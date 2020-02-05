@@ -12,3 +12,4 @@ cookie_secret: 0665b089efe587e560fc79c4218ac6e43181e9076a582905dbb991f05c6785ab1
 # needed to take a screenshot
 libvirt_rw: true
 serve_static: true
+reconnect_timeout: 5

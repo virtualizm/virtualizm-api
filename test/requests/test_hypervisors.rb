@@ -65,7 +65,8 @@ class TestHypervisors < RequestTestCase
                                  cpu_threads: hv.cpu_threads,
                                  total_memory: hv.total_memory,
                                  free_memory: hv.free_memory,
-                                 capabilities: hv.capabilities
+                                 capabilities: hv.capabilities,
+                                 running: true
                              },
                              links: { self: "/api/hypervisors/#{hv.id}" }
                          }
@@ -143,7 +144,8 @@ class TestHypervisors < RequestTestCase
                              cpu_threads: hv.cpu_threads,
                              total_memory: hv.total_memory,
                              free_memory: hv.free_memory,
-                             capabilities: hv.capabilities
+                             capabilities: hv.capabilities,
+                             running: true
                          },
                          links: { self: "/api/hypervisors/#{hv.id}" }
                      }

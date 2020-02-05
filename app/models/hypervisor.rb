@@ -33,7 +33,8 @@ class Hypervisor
               :name,
               :uri,
               :ws_endpoint,
-              :virtual_machines
+              :virtual_machines,
+              :connection
 
   attr_accessor :version,
                 :libversion,
@@ -58,16 +59,13 @@ class Hypervisor
     @uri = uri
     @ws_endpoint = ws_endpoint
     @dom_cb_ids = []
+    @running = nil
+    @on_close = []
+    @on_open = []
 
     #force connect to initialize events callbacks
-    connection
-    setup_attributes
-    register_dom_event_callbacks
-    load_virtual_machines
-  end
-
-  def connection
-    @connection ||= _open_connection
+    set_connection
+    try_connect
   end
 
   def to_json(_opts = nil)
@@ -100,7 +98,57 @@ class Hypervisor
     true
   end
 
+  def running?
+    @running
+  end
+
+  def on_close(&block)
+    @on_close.push(block)
+  end
+
+  def on_open(&block)
+    @on_open.push(block)
+  end
+
   private
+
+  def set_connection
+    dbg { "#{self.class}#_open_connection Opening RW connection to name=#{name} id=#{id}, uri=#{uri}" }
+    @connection = Libvirt::Connection.new(uri)
+    _open_connection
+  end
+
+  def try_connect
+    _open_connection
+    if running?
+      LibvirtApp.logger.info { "Hypervisor##{id} connected." }
+      setup_attributes
+      register_dom_event_callbacks
+      register_close_callback
+      load_virtual_machines
+      @on_open.each { |cb| cb.call(self) }
+    else
+      LibvirtApp.logger.info { "Hypervisor##{id} connect failed. Retry is scheduled." }
+      schedule_try_connect
+    end
+  end
+
+  def schedule_try_connect
+    Async.run_after(LibvirtApp.config.reconnect_timeout) do
+      try_connect
+    end
+  end
+
+  def register_close_callback
+    connection.register_close_callback { |_c, reason, _op| when_closed(reason) }
+  end
+
+  def when_closed(reason)
+    LibvirtApp.logger.info { "Hypervisor##{id} connection was closed (#{reason}). Retry is scheduled." }
+    @on_close.each { |cb| cb.call(self) }
+    @virtual_machines = []
+    try_connect
+  end
 
   def load_virtual_machines
     dbg { "#{self.class}#load_virtual_machines id=#{id}, name=#{name}, uri=#{uri}" }
@@ -109,14 +157,13 @@ class Hypervisor
   end
 
   def _open_connection
-    dbg { "#{self.class}#_open_connection Opening RW connection to name=#{name} id=#{id}, uri=#{uri}" }
-    c = Libvirt::Connection.new(uri)
-    c.open
-
-    dbg { "#{self.class}#_open_connection Connected name=#{name} id=#{id}, uri=#{uri}" }
-
+    connection.open
     # c.set_keep_alive(10, 2)
-    c
+    dbg { "#{self.class}#_open_connection Connected name=#{name} id=#{id}, uri=#{uri}" }
+    @running = true
+  rescue Libvirt::Error => e
+    dbg { "#{self.class}#_open_connection Failed #{e.message} name=#{name} id=#{id}, uri=#{uri}" }
+    @running = false
   end
 
   def setup_attributes
@@ -177,36 +224,36 @@ class Hypervisor
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_REBOOT
   def dom_event_callback_reboot(_conn, dom, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT REBOOT hv.id=#{id}, vm.id=#{dom.uuid}" }
+    LibvirtApp.logger.debug { "DOMAIN EVENT REBOOT hv.id=#{id}, vm.id=#{dom.uuid}" }
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_LIFECYCLE
   def dom_event_callback_lifecycle(_conn, dom, event, detail, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT LIFECYCLE hv.id=#{id}, vm.id=#{dom.uuid}, event=#{event}, detail=#{detail}" }
+    LibvirtApp.logger.debug { "DOMAIN EVENT LIFECYCLE hv.id=#{id}, vm.id=#{dom.uuid}, event=#{event}, detail=#{detail}" }
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_RTC_CHANGE
   def dom_event_callback_rtc_change(_conn, dom, utc_offset, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT RTC_CHANGE hv.id=#{id}, vm.id=#{dom.uuid}, utc_offset=#{utc_offset}" }
+    LibvirtApp.logger.debug { "DOMAIN EVENT RTC_CHANGE hv.id=#{id}, vm.id=#{dom.uuid}, utc_offset=#{utc_offset}" }
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_WATCHDOG
   def dom_event_callback_watchdog(_conn, dom, action, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT WATCHDOG hv.id=#{id}, vm.id=#{dom.uuid}, action=#{action}" }
+    LibvirtApp.logger.debug { "DOMAIN EVENT WATCHDOG hv.id=#{id}, vm.id=#{dom.uuid}, action=#{action}" }
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_IO_ERROR
   def dom_event_callback_io_error(_conn, dom, src_path, dev_alias, action, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT IO_ERROR hv.id=#{id}, vm.id=#{dom.uuid}, src_path=#{src_path}, dev_alias=#{dev_alias}, action=#{action}" }
+    LibvirtApp.logger.debug { "DOMAIN EVENT IO_ERROR hv.id=#{id}, vm.id=#{dom.uuid}, src_path=#{src_path}, dev_alias=#{dev_alias}, action=#{action}" }
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_IO_ERROR_REASON
   def dom_event_callback_io_error_reason(_conn, dom, src_path, dev_alias, action, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT IO_ERROR_REASON hv.id=#{id}, vm.id=#{dom.uuid}, src_path=#{src_path}, dev_alias=#{dev_alias}, action=#{action}" }
+    LibvirtApp.logger.debug { "DOMAIN EVENT IO_ERROR_REASON hv.id=#{id}, vm.id=#{dom.uuid}, src_path=#{src_path}, dev_alias=#{dev_alias}, action=#{action}" }
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_GRAPHICS
   def dom_event_callback_graphics(_conn, dom, phase, local, remote, auth_scheme, subject, _opaque)
-    LibvirtApp.logger.info { "DOMAIN EVENT GRAPHICS hv.id=#{id}, vm.id=#{dom.uuid}, phase=#{phase}, local=#{local}, remote=#{remote}, auth_scheme=#{auth_scheme}, subject=#{subject}" }
+    LibvirtApp.logger.debug { "DOMAIN EVENT GRAPHICS hv.id=#{id}, vm.id=#{dom.uuid}, phase=#{phase}, local=#{local}, remote=#{remote}, auth_scheme=#{auth_scheme}, subject=#{subject}" }
   end
 end

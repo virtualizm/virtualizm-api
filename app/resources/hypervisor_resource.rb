@@ -22,6 +22,8 @@ class HypervisorResource < BaseResource
                :free_memory,
                :capabilities
 
+    attribute(:running) { @object.running? }
+
     link(:self) do
       "/api/hypervisors/#{@object.id}"
     end

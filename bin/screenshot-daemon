@@ -32,6 +32,26 @@ require_relative '../lib/screenshot_timers'
 LibvirtApp.logger.level = options[:debug] ? :debug : :info
 LibvirtApp.logger = nil if options[:quiet]
 
+Libvirt.logger = LibvirtApp.logger
+
+VM_HANDLER = ->(vm) do
+  vm.on_event(:LIFECYCLE) do |_conn, _dom, event, detail, _op|
+    case event
+    when :STOPPED
+      LibvirtApp.logger.info { "VM #{vm.name} [#{vm.id}] stopped (#{detail}) - removing screenshot timer" }
+      ScreenshotTimers.remove(vm)
+    when :STARTED
+      LibvirtApp.logger.info { "VM #{vm.name} [#{vm.id}] started (#{detail}) - adding screenshot timer" }
+      ScreenshotTimers.add(vm)
+    when :CRASHED
+      LibvirtApp.logger.info { "VM #{vm.name} [#{vm.id}] crashed (#{detail}) - removing screenshot timer" }
+      ScreenshotTimers.remove(vm)
+    else
+      # ignore
+    end
+  end
+end
+
 Async::Reactor.run do
   begin
     require_relative '../config/initializer'
@@ -41,27 +61,38 @@ Async::Reactor.run do
     exit 1
   end
 
+  ScreenshotTimers.screenshot_timeout = options[:timeout]
+
   Hypervisor.all.each do |hv|
-    hv.deregister_all_domain_events
-  end
-
-  ScreenshotTimers.run options[:timeout]
-
-  VirtualMachine.all.each do |vm|
-    vm.on_event(:LIFECYCLE) do |_conn, _dom, event, detail, _op|
-      case event
-      when :STOPPED
-        LibvirtApp.logger.info { "VM #{vm.name} [#{vm.id}] stopped (#{detail}) - removing screenshot timer" }
-        ScreenshotTimers.remove(vm)
-      when :STARTED
-        LibvirtApp.logger.info { "VM #{vm.name} [#{vm.id}] started (#{detail}) - adding screenshot timer" }
-        ScreenshotTimers.add(vm)
-      when :CRASHED
-        LibvirtApp.logger.info { "VM #{vm.name} [#{vm.id}] crashed (#{detail}) - removing screenshot timer" }
-        ScreenshotTimers.remove(vm)
-      else
-        # ignore
+    hv.on_open do
+      hv.virtual_machines.each do |vm|
+        if vm.running?
+          LibvirtApp.logger.info { "VM #{vm.name} [#{vm.id}] host reconnected - adding screenshot timer" }
+          ScreenshotTimers.add(vm)
+        else
+          LibvirtApp.logger.info { "VM #{vm.name} [#{vm.id}] host reconnected - skip screenshot timer (not running)" }
+        end
+        VM_HANDLER.call(vm)
       end
+    end
+
+    hv.on_close do
+      hv.virtual_machines.each do |vm|
+        LibvirtApp.logger.info { "VM #{vm.name} [#{vm.id}] host connection closed - removing screenshot timer" }
+        ScreenshotTimers.remove(vm)
+      end
+    end
+
+    LibvirtApp.logger.info { "HV #{hv.name} [#{hv.id}] initial connect" }
+
+    hv.virtual_machines.each do |vm|
+      if vm.running?
+        LibvirtApp.logger.info { "VM #{vm.name} [#{vm.id}] initial connect - adding screenshot timer" }
+        ScreenshotTimers.add(vm)
+      else
+        LibvirtApp.logger.info { "VM #{vm.name} [#{vm.id}] initial connect - skip screenshot timer (not running)" }
+      end
+      VM_HANDLER.call(vm) if vm.running?
     end
   end
 

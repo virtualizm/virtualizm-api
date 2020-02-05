@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/senid231/libvirt_async.git
-  revision: 8be3f07dfdce81f64f83874137d536c96ca8af75
+  revision: 36a6eb2f1b630a359a59a47836c6d7c02b7b0a4d
   specs:
     libvirt_async (0.3.2)
       activesupport
@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://github.com/senid231/libvirt_ffi.git
-  revision: 683897cf01a9d374fda71c25a3a2613a5fc15fb4
+  revision: a8ecb53560fc071aaff5c8facc9977bd8e36e004
   specs:
     libvirt_ffi (0.4.1)
       ffi (>= 1.0)

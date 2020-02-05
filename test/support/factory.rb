@@ -66,6 +66,9 @@ class Factory
       def register_domain_event_callback(_ev, _dom = nil, _opaque = nil, &block)
         nil
       end
+      def register_close_callback(_opaque = nil, &block)
+        nil
+      end
       def list_all_domains
         []
       end

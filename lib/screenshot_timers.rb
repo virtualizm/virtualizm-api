@@ -7,28 +7,12 @@ class ScreenshotTimers
 
   include LibvirtAsync::WithDbg
 
-  single_delegate [:add, :remove, :run, :enabled?] => :instance
+  single_delegate [:add, :remove, :run, :screenshot_timeout=, :screenshot_timeout] => :instance
 
-  def enabled?
-    LibvirtApp.config.screenshot_enabled
-  end
+  attr_reader :screenshot_timeout
 
-  def run(timeout)
+  def screenshot_timeout=(timeout)
     @screenshot_timeout = timeout
-
-    Async.run_new do
-      logger.info "VM screenshot save starting..."
-      VirtualMachine.all.each do |vm|
-        if vm.running?
-          LibvirtApp.logger.info "> VM #{vm.id} state is #{vm.state} so started"
-          Async.schedule_new { ScreenshotTimers.add(vm) }
-          Async.current_reactor.sleep 2
-        else
-          LibvirtApp.logger.info "> VM #{vm.id} state is #{vm.state} so skipping"
-        end
-      end
-      LibvirtApp.logger.info "OK."
-    end
   end
 
   # @param vm [VirtualMachine]
@@ -54,10 +38,6 @@ class ScreenshotTimers
   end
 
   private
-
-  def screenshot_timeout
-    @screenshot_timeout
-  end
 
   # @param vm [VirtualMachine]
   # @param display [Integer]

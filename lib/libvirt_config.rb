@@ -17,13 +17,15 @@ class LibvirtConfig < Anyway::Config
               :libvirt_rw,
               :serve_static,
               :cookie_name,
-              :logger
+              :logger,
+              :reconnect_timeout
 
   attrs_from_file :users,
                   :clusters,
                   :cookie_secret,
                   :libvirt_rw,
-                  :serve_static
+                  :serve_static,
+                  :reconnect_timeout
 
   def log_level
     logger.level
