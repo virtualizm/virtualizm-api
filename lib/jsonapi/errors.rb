@@ -58,8 +58,20 @@ module JSONAPI
     end
 
     class ValidationError < Error
+      attr_reader :field
+
+      def initialize(field, error)
+        @field = field
+        super(error)
+      end
+
       def status
         422
+      end
+
+      def detail
+        return message if field.to_s == 'data'
+        "#{field} - #{message}"
       end
     end
 

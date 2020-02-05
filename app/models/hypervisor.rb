@@ -186,6 +186,7 @@ class Hypervisor
   end
 
   def register_dom_event_callbacks
+    @dom_cb_ids = []
     on_domain_event(
         :REBOOT,
         &method(:dom_event_callback_reboot)

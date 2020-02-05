@@ -9,6 +9,5 @@ class VirtualMachinesController < JsonApiController
   before_action :authenticate_current_user!
 
   undef :create
-  undef :update
   undef :destroy
 end

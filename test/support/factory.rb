@@ -123,7 +123,7 @@ class Factory
     {
         uuid: SecureRandom.uuid,
         name: 'test_dom',
-        get_state: [VirtualMachine::STATE_RUNNING, 0],
+        get_state: [:RUNNING, :BOOTED],
         max_vcpus: '1',
         vcpus: [Object.new],
         max_memory: '512MB',

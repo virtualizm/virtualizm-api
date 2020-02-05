@@ -41,5 +41,14 @@ class VirtualMachineResource < BaseResource
     def render_classes
       super.merge HypervisorResource.render_classes
     end
+
+    def update(object, data, _options)
+      state = data[:state].to_s.upcase.to_sym
+      begin
+        object.set_state(state)
+      rescue ArgumentError, Libvirt::Error => e
+        raise JSONAPI::Errors::ValidationError.new(:state, e.message)
+      end
+    end
   end
 end

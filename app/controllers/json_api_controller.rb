@@ -41,7 +41,7 @@ class JsonApiController < BaseController
     json_api_verify_env!
     options = json_api_options
     object = resource_class.find_single(path_params[:id], options)
-    object.destroy
+    resource_class.update(object, json_api_data, options)
     body = json_api_response_body(object, resource_class, options)
     response_json_api status: 200, body: body
   end
@@ -87,6 +87,15 @@ class JsonApiController < BaseController
         fields: (request.params['field'] || {}).transform_values { |v| v.split(',') }.symbolize_keys
     }
     # todo verify options
+  end
+
+  def json_api_data
+    hash = JSON.parse(request.body.read, symbolize_names: true)
+    data = hash[:data][:attributes]
+    (hash[:data][:relationships] || {}).each do |name, val|
+      data[name] = val[:data]
+    end
+    data
   end
 
   def json_api_exception(e)

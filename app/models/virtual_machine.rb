@@ -113,19 +113,6 @@ class VirtualMachine
     end
   end
 
-  # https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainState
-  STATE_RUNNING = 1
-  STATES = {
-      0 => 'no state'.freeze,
-      1 => 'running'.freeze,
-      2 => 'blocked on resource'.freeze,
-      3 => 'paused by user'.freeze,
-      4 => 'being shut down'.freeze,
-      5 => 'shut off'.freeze,
-      6 => 'crashed'.freeze,
-      7 => 'suspended by guest power management'.freeze
-  }.freeze
-
   attr_reader :domain,
               :hypervisor
 
@@ -172,7 +159,7 @@ class VirtualMachine
   end
 
   def running?
-    state == STATES[STATE_RUNNING]
+    state == 'running'
   end
 
   def get_cpus
@@ -184,8 +171,32 @@ class VirtualMachine
   end
 
   def get_state
-    libvirt_state, _ = domain.get_state
-    STATES[libvirt_state]
+    state, _ = domain.get_state
+    state.to_s.downcase
+  end
+
+  # @param [Symbol]
+  # @raise [ArgumentError]
+  # @raise [Libvirt::Error]
+  def set_state(state)
+    case state
+    when :RUNNING
+      domain.start
+    when :SHUTDOWN
+      domain.shutdown(1)
+    when :SHUTOFF
+      domain.power_off
+    when :SUSPEND
+      domain.suspend
+    when :RESUME
+      domain.resume
+    when :REBOOT
+      domain.reboot
+    when :RESET
+      domain.reset
+    else
+      raise ArgumentError, "invalid state #{state}"
+    end
   end
 
   # Take screenshot asynchronously.
