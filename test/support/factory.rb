@@ -133,7 +133,7 @@ class Factory
 
   define_trait :virtual_machine, :shut_off do
     {
-        get_state: [5, 0]
+        get_state: [:SHUTOFF, :DESTROYED]
     }
   end
 

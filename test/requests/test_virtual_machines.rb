@@ -78,7 +78,7 @@ class TestVirtualMachines < RequestTestCase
                              type: 'virtual-machines',
                              attributes: {
                                  name: vms.second.name,
-                                 state: 'shut off',
+                                 state: 'shutoff',
                                  memory: vms.second.memory,
                                  cpus: vms.second.cpus,
                                  xml: vms.second.xml
@@ -127,7 +127,7 @@ class TestVirtualMachines < RequestTestCase
                              type: 'virtual-machines',
                              attributes: {
                                  name: vms.second.name,
-                                 state: 'shut off',
+                                 state: 'shutoff',
                                  memory: vms.second.memory,
                                  cpus: vms.second.cpus,
                                  xml: vms.second.xml
