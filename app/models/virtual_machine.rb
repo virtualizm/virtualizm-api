@@ -194,6 +194,11 @@ class VirtualMachine
       domain.reboot
     when :RESET
       domain.reset
+    when :PAUSE
+      domain.save_memory
+    when :RESTORE
+      domain.start
+      domain.resume
     else
       raise ArgumentError, "invalid state #{state}"
     end
