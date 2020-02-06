@@ -5,9 +5,15 @@ require_relative 'base_cable'
 class DomainEventCable < BaseCable
   identified_as :domain_event
 
+  STREAM_NAME = 'domain_event'
+
+  def self.broadcast(data)
+    super(STREAM_NAME, data)
+  end
+
   def on_open
     authorize_current_user!
-    stream_for 'domain_event'
+    stream_for STREAM_NAME
     logger.info { "#{to_s} opened current_user=#{current_user}" }
   end
 
