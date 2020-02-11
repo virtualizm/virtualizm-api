@@ -13,7 +13,18 @@ rescue => e
   end
 end
 
-LibvirtApp.add_server :api_cable, AsyncCable::Server.new(connection_class: ApiCable)
+Libvirt.logger = Logger.new(STDOUT)
+Libvirt.logger.level = !!ENV['DEBUG'] ? :debug : :info
+
+# websockets
+AsyncCable.config.logger = Libvirt.logger
+LibvirtApp.add_server :events, AsyncCable::Server.new(connection_class: EventCable)
+
+Hypervisor.all.each do |hv|
+  hv.on_vm_change do |_hv, vm|
+    EventCable.update_virtual_machine(vm)
+  end
+end
 
 # build application server
 LibvirtApp.app = Rack::Builder.new do
@@ -36,8 +47,8 @@ LibvirtApp.app = Rack::Builder.new do
   use Rack::Router::Middleware, logger: LibvirtApp.logger do
     not_found :default
 
-    get '/api_cable', -> (env) do
-      LibvirtApp.find_server(:api_cable).call(env)
+    get '/ws_events', -> (env) do
+      LibvirtApp.find_server(:events).call(env)
     end
 
     namespace :api do

@@ -22,7 +22,7 @@ class HypervisorResource < BaseResource
                :free_memory,
                :capabilities
 
-    attribute(:running) { @object.running? }
+    attribute(:connected) { @object.connected? }
 
     link(:self) do
       "/api/hypervisors/#{@object.id}"

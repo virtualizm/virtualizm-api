@@ -161,7 +161,7 @@ class TestVirtualMachines < RequestTestCase
                                  total_memory: hv.total_memory,
                                  free_memory: hv.free_memory,
                                  capabilities: hv.capabilities,
-                                 running: true
+                                 connected: true
                              },
                              links: { self: "/api/hypervisors/#{hv.id}" }
                          }
@@ -289,7 +289,7 @@ class TestVirtualMachines < RequestTestCase
                                  total_memory: hv.total_memory,
                                  free_memory: hv.free_memory,
                                  capabilities: hv.capabilities,
-                                 running: true
+                                 connected: true
                              },
                              links: { self: "/api/hypervisors/#{hv.id}" }
                          }
