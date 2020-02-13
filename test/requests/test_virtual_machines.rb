@@ -94,6 +94,37 @@ class TestVirtualMachines < RequestTestCase
                      ]
   end
 
+  def test_get_virtual_machines_index_fields
+    user = User.all.first
+    raw_cookie = sign_in_for_cookie(user)
+    set_cookie_header raw_cookie
+
+    get_json_api '/api/virtual-machines?fields[virtual-machines]=name,state'
+
+    assert_http_status 200
+    assert_json_body jsonapi: { version: JSONAPI::Const::SPEC_VERSION },
+                     data: [
+                         {
+                             id: vms.first.id,
+                             type: 'virtual-machines',
+                             attributes: {
+                                 name: vms.first.name,
+                                 state: 'running'
+                             },
+                             links: { self: "/api/virtual-machines/#{vms.first.id}" }
+                         },
+                         {
+                             id: vms.second.id,
+                             type: 'virtual-machines',
+                             attributes: {
+                                 name: vms.second.name,
+                                 state: 'shutoff'
+                             },
+                             links: { self: "/api/virtual-machines/#{vms.second.id}" }
+                         }
+                     ]
+  end
+
   def test_get_virtual_machines_index_include_hypervisor
     user = User.all.first
     raw_cookie = sign_in_for_cookie(user)
@@ -294,5 +325,128 @@ class TestVirtualMachines < RequestTestCase
                              links: { self: "/api/hypervisors/#{hv.id}" }
                          }
                      ]
+  end
+
+  def test_get_virtual_machines_show_includes_hypervisor_with_fields
+    user = User.all.first
+    raw_cookie = sign_in_for_cookie(user)
+    set_cookie_header raw_cookie
+
+    get_json_api "/api/virtual-machines/#{vm.id}?include=hypervisor&fields[hypervisors]=name,connected"
+
+    assert_http_status 200
+    assert_json_body jsonapi: { version: JSONAPI::Const::SPEC_VERSION },
+                     data: {
+                         id: vm.id,
+                         type: 'virtual-machines',
+                         attributes: {
+                             name: vm.name,
+                             state: 'running',
+                             memory: vm.memory,
+                             cpus: vm.cpus,
+                             xml: vm.xml
+                         },
+                         relationships: {
+                             hypervisor: {
+                                 links: { self: "/api/hypervisors/#{hv.id}" },
+                                 data: { type: 'hypervisors', id: hv.id.to_s }
+                             }
+                         },
+                         links: { self: "/api/virtual-machines/#{vm.id}" }
+                     },
+                     included: [
+                         {
+                             id: hv.id.to_s,
+                             type: 'hypervisors',
+                             attributes: {
+                                 name: hv.name,
+                                 connected: true
+                             },
+                             links: { self: "/api/hypervisors/#{hv.id}" }
+                         }
+                     ]
+  end
+
+  def test_get_virtual_machines_show_fields_includes_hypervisor_with_fields
+    user = User.all.first
+    raw_cookie = sign_in_for_cookie(user)
+    set_cookie_header raw_cookie
+
+    get_json_api "/api/virtual-machines/#{vm.id}?include=hypervisor&fields[virtual-machines]=name,state,hypervisor&fields[hypervisors]=name,connected"
+
+    assert_http_status 200
+    assert_json_body jsonapi: { version: JSONAPI::Const::SPEC_VERSION },
+                     data: {
+                         id: vm.id,
+                         type: 'virtual-machines',
+                         attributes: {
+                             name: vm.name,
+                             state: 'running'
+                         },
+                         relationships: {
+                             hypervisor: {
+                                 links: { self: "/api/hypervisors/#{hv.id}" },
+                                 data: { type: 'hypervisors', id: hv.id.to_s }
+                             }
+                         },
+                         links: { self: "/api/virtual-machines/#{vm.id}" }
+                     },
+                     included: [
+                         {
+                             id: hv.id.to_s,
+                             type: 'hypervisors',
+                             attributes: {
+                                 name: hv.name,
+                                 connected: true
+                             },
+                             links: { self: "/api/hypervisors/#{hv.id}" }
+                         }
+                     ]
+  end
+
+  def test_get_virtual_machines_show_fields
+    user = User.all.first
+    raw_cookie = sign_in_for_cookie(user)
+    set_cookie_header raw_cookie
+
+    get_json_api "/api/virtual-machines/#{vm.id}?fields[virtual-machines]=name,state"
+
+    assert_http_status 200
+    assert_json_body jsonapi: { version: JSONAPI::Const::SPEC_VERSION },
+                     data: {
+                         id: vm.id,
+                         type: 'virtual-machines',
+                         attributes: {
+                             name: vm.name,
+                             state: 'running'
+                         },
+                         links: { self: "/api/virtual-machines/#{vm.id}" }
+                     }
+  end
+
+  def test_get_virtual_machines_show_fields_with_relationship
+    user = User.all.first
+    raw_cookie = sign_in_for_cookie(user)
+    set_cookie_header raw_cookie
+
+    get_json_api "/api/virtual-machines/#{vm.id}?fields[virtual-machines]=name,state,hypervisor"
+
+    assert_http_status 200
+    assert_json_body jsonapi: { version: JSONAPI::Const::SPEC_VERSION },
+                     data: {
+                         id: vm.id,
+                         type: 'virtual-machines',
+                         attributes: {
+                             name: vm.name,
+                             state: 'running'
+                         },
+                         relationships: {
+                             hypervisor: {
+                                 links: { self: "/api/hypervisors/#{hv.id}" },
+                                 data: { type: 'hypervisors', id: hv.id.to_s }
+                             }
+                         },
+                         links: { self: "/api/virtual-machines/#{vm.id}" }
+                     }
   end
 end

@@ -73,6 +73,29 @@ class TestHypervisors < RequestTestCase
                      ]
   end
 
+  def test_get_hypervisors_index_fields
+    user = User.all.first
+    raw_cookie = sign_in_for_cookie(user)
+    set_cookie_header raw_cookie
+
+    get_json_api '/api/hypervisors?fields[hypervisors]=name,version,connected'
+
+    assert_http_status 200
+    assert_json_body jsonapi: { version: JSONAPI::Const::SPEC_VERSION },
+                     data: [
+                         {
+                             id: hv.id.to_s,
+                             type: 'hypervisors',
+                             attributes: {
+                                 name: hv.name,
+                                 version: hv.version,
+                                 connected: true
+                             },
+                             links: { self: "/api/hypervisors/#{hv.id}" }
+                         }
+                     ]
+  end
+
   def test_get_hypervisors_show_no_cookie
     get_json_api "/api/hypervisors/#{hv.id}"
 
@@ -145,6 +168,27 @@ class TestHypervisors < RequestTestCase
                              total_memory: hv.total_memory,
                              free_memory: hv.free_memory,
                              capabilities: hv.capabilities,
+                             connected: true
+                         },
+                         links: { self: "/api/hypervisors/#{hv.id}" }
+                     }
+  end
+
+  def test_get_hypervisors_show_fields
+    user = User.all.first
+    raw_cookie = sign_in_for_cookie(user)
+    set_cookie_header raw_cookie
+
+    get_json_api "/api/hypervisors/#{hv.id}?fields[hypervisors]=name,version,connected"
+
+    assert_http_status 200
+    assert_json_body jsonapi: { version: JSONAPI::Const::SPEC_VERSION },
+                     data: {
+                         id: hv.id.to_s,
+                         type: 'hypervisors',
+                         attributes: {
+                             name: hv.name,
+                             version: hv.version,
                              connected: true
                          },
                          links: { self: "/api/hypervisors/#{hv.id}" }

@@ -84,7 +84,7 @@ class JsonApiController < BaseController
         context: json_api_context,
         filters: (request.params['filter'] || {}).symbolize_keys,
         includes: request.params['include'].to_s.split(','),
-        fields: (request.params['field'] || {}).transform_values { |v| v.split(',') }.symbolize_keys
+        fields: (request.params['fields'] || {}).transform_values { |v| v.split(',') }.symbolize_keys
     }
     # todo verify options
   end
