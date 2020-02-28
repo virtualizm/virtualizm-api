@@ -1,6 +1,6 @@
-# Libvirt Web
+# Virtualizm API
 
-[![Build Status](https://travis-ci.com/senid231/libvirt-web.svg?branch=master)](https://travis-ci.com/senid231/libvirt-web)
+[![Build Status](https://travis-ci.org/virtualizm/virtualizm-api.svg?branch=master)](https://travis-ci.org/virtualizm/virtualizm-api)
 
 ## Development
 
