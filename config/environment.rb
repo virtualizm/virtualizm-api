@@ -13,12 +13,12 @@ require_relative '../lib/jsonapi/const'
 require_relative '../lib/async_util'
 
 # load application
-require_relative '../lib/libvirt_app'
+require_relative '../lib/application'
 
-LibvirtApp.setup_env(rack_env)
-LibvirtApp.setup_root File.expand_path('..', __dir__)
+Application.setup_env(rack_env)
+Application.setup_root File.expand_path('..', __dir__)
 
-LibvirtApp.setup_config do |config|
+Application.setup_config do |config|
   config.logger = ActiveSupport::TaggedLogging.new(
       ::Logger.new(STDOUT, formatter: ::Logger::Formatter.new)
   )
@@ -27,11 +27,11 @@ LibvirtApp.setup_config do |config|
 end
 
 # load patches
-Dir.glob(LibvirtApp.root.join('patches/*.rb')).sort.each do |filename|
+Dir.glob(Application.root.join('patches/*.rb')).sort.each do |filename|
   require filename
 end
 
 # load app files
-Dir.glob(LibvirtApp.root.join('app/**/*.rb')).sort.each do |filename|
+Dir.glob(Application.root.join('app/**/*.rb')).sort.each do |filename|
   require filename
 end
