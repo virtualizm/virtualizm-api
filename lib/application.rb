@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative 'libvirt_config'
+require_relative 'application_config'
 require_relative 'env_string'
 
-class LibvirtApp
+class Application
   include Singleton
   extend Forwardable
   extend SingleForwardable
@@ -32,7 +32,7 @@ class LibvirtApp
   end
 
   def setup_config(&block)
-    @config = LibvirtConfig.new
+    @config = ApplicationConfig.new
     @config.setup!(&block)
   end
 

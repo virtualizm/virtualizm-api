@@ -18,7 +18,7 @@ Libvirt.logger.level = !!ENV['DEBUG'] ? :debug : :info
 
 # websockets
 AsyncCable.config.logger = Libvirt.logger
-LibvirtApp.add_server :events, AsyncCable::Server.new(connection_class: EventCable)
+Application.add_server :events, AsyncCable::Server.new(connection_class: EventCable)
 
 Hypervisor.all.each do |hv|
   hv.on_vm_change do |_hv, vm|
@@ -27,28 +27,28 @@ Hypervisor.all.each do |hv|
 end
 
 # build application server
-LibvirtApp.app = Rack::Builder.new do
-  if LibvirtApp.config.serve_static
+Application.app = Rack::Builder.new do
+  if Application.config.serve_static
     urls = %w(/screenshots)
-    static_root = LibvirtApp.root.join('public')
-    LibvirtApp.logger.info { "Serve static folders [#{urls.join(',')}] from #{static_root}" }
+    static_root = Application.root.join('public')
+    Application.logger.info { "Serve static folders [#{urls.join(',')}] from #{static_root}" }
     use Rack::Protection::PathTraversal
     use Rack::Static, urls: urls, root: static_root
   end
 
-  use Rack::XRequestId, logger: LibvirtApp.logger
+  use Rack::XRequestId, logger: Application.logger
   use Rack::MethodOverride
-  use Rack::Session::Cookie, key: LibvirtApp.config.cookie_name, secret: LibvirtApp.config.cookie_secret
-  use Rack::ImprovedLogger, LibvirtApp.logger
+  use Rack::Session::Cookie, key: Application.config.cookie_name, secret: Application.config.cookie_secret
+  use Rack::ImprovedLogger, Application.logger
   use Rack::Protection::CookieTossing
   use Rack::Protection::IPSpoofing
   use Rack::Protection::SessionHijacking
 
-  use Rack::Router::Middleware, logger: LibvirtApp.logger do
+  use Rack::Router::Middleware, logger: Application.logger do
     not_found :default
 
     get '/ws_events', -> (env) do
-      LibvirtApp.find_server(:events).call(env)
+      Application.find_server(:events).call(env)
     end
 
     namespace :api do

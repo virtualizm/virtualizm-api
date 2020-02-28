@@ -2,7 +2,7 @@
 
 require 'logger'
 
-class LibvirtConfig < Anyway::Config
+class ApplicationConfig < Anyway::Config
   class_attribute :_file_config_keys, instance_writer: false, default: []
 
   # Define which keys required to be loaded from yml file

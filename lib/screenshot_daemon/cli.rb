@@ -37,9 +37,9 @@ module ScreenshotDaemon
                   "Quiet: #{@quiet}",
                   "PID: #{Process.pid}"
 
-      LibvirtApp.logger.level = @debug ? :debug : :info
-      LibvirtApp.logger = nil if @quiet
-      Libvirt.logger = LibvirtApp.logger
+      Application.logger.level = @debug ? :debug : :info
+      Application.logger = nil if @quiet
+      Libvirt.logger = Application.logger
 
       Runner.run(@timeout)
     end

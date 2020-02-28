@@ -9,7 +9,7 @@ class RequestTestCase < Minitest::Test
   include WithCacheMethods
 
   def app
-    LibvirtApp.app
+    Application.app
   end
 
   private
