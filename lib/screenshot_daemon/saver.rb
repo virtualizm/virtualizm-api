@@ -115,7 +115,7 @@ module ScreenshotDaemon
     end
 
     def log(level, progname = nil, &block)
-      LibvirtApp.logger&.public_send(level, progname, &block)
+      Application.logger&.public_send(level, progname, &block)
     end
 
     def dbg(meth, &block)

@@ -116,7 +116,7 @@ class BaseController
     end
 
     def logger
-      LibvirtApp.logger
+      Application.logger
     end
   end
 

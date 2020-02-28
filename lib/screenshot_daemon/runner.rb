@@ -28,7 +28,7 @@ module ScreenshotDaemon
     private
 
     def screenshot_path(vm)
-      LibvirtApp.root.join("public/screenshots/#{vm.id}.png")
+      Application.root.join("public/screenshots/#{vm.id}.png")
     end
 
     def virtual_machines
@@ -54,7 +54,7 @@ module ScreenshotDaemon
     end
 
     def log(level, progname = nil, &block)
-      LibvirtApp.logger&.public_send(level, progname, &block)
+      Application.logger&.public_send(level, progname, &block)
     end
 
     def dbg(meth, &block)

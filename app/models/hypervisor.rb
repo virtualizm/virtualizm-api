@@ -127,20 +127,20 @@ class Hypervisor
   def try_connect
     _open_connection
     if connected?
-      LibvirtApp.logger.info { "Hypervisor##{id} connected." }
+      Application.logger.info { "Hypervisor##{id} connected." }
       setup_attributes
       register_dom_event_callbacks
       register_close_callback
       load_virtual_machines
       @on_open.each { |cb| cb.call(self) }
     else
-      LibvirtApp.logger.info { "Hypervisor##{id} connect failed. Retry is scheduled." }
+      Application.logger.info { "Hypervisor##{id} connect failed. Retry is scheduled." }
       schedule_try_connect
     end
   end
 
   def schedule_try_connect
-    Async.run_after(LibvirtApp.config.reconnect_timeout) do
+    Async.run_after(Application.config.reconnect_timeout) do
       try_connect
     end
   end
@@ -150,7 +150,7 @@ class Hypervisor
   end
 
   def when_closed(reason)
-    LibvirtApp.logger.info { "Hypervisor##{id} connection was closed (#{reason}). Retry is scheduled." }
+    Application.logger.info { "Hypervisor##{id} connection was closed (#{reason}). Retry is scheduled." }
     @on_close.each { |cb| cb.call(self) }
     @virtual_machines = []
     try_connect
@@ -200,7 +200,7 @@ class Hypervisor
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_LIFECYCLE
   def dom_event_callback_lifecycle(_conn, dom, event, detail, _opaque)
-    LibvirtApp.logger.debug { "DOMAIN EVENT LIFECYCLE hv.id=#{id}, vm.id=#{dom.uuid}, event=#{event}, detail=#{detail}" }
+    Application.logger.debug { "DOMAIN EVENT LIFECYCLE hv.id=#{id}, vm.id=#{dom.uuid}, event=#{event}, detail=#{detail}" }
     vm = virtual_machines.detect { |r| r.id == dom.uuid }
 
     vm.state = vm.get_state
