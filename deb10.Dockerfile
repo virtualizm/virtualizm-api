@@ -1,7 +1,7 @@
-ARG DEBIAN=buster
-FROM switchyeti/yeti-web:${DEBIAN}-build
+ARG DEBIAN=deb10
+FROM virtualizm/virtualizm-api:${DEBIAN}-build
 USER build
 ADD --chown=build:build Gemfile Gemfile.lock Makefile vendor /build/yeti-web/
-WORKDIR /build/yeti-web
+WORKDIR /build/virtualizm-api
 RUN make gems-test
-ADD --chown=build:build . /build/yeti-web/
+ADD --chown=build:build . /build/virtualizm-api/
