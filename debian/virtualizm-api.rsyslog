@@ -1,0 +1,2 @@
+if $programname == 'oms' then action(type="omfile" FileCreateMode="0644" File="/var/log/oms/oms.log" fileOwner="oms" fileGroup="oms")
+if $programname == 'oms' then stop

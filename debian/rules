@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+# You must remove unused comment lines for the released package.
+#export DH_VERBOSE = 1
+
+%:
+	dh $@
+
+override_dh_strip_nondeterminism:
+	#avoid building debug symbols from so files in gems
+	dh_strip_nondeterminism -Xvendor
+
+override_dh_strip:
+	#avoid building debug symbols from so files in gems
+	dh_strip -Xvendor
+
+override_dh_makeshlibs:
+	#we don't want to generate shlibs file
+
+override_dh_installinit:
+	#only systemd
+
+override_dh_systemd_start:
+	dh_systemd_start --no-stop-on-upgrade --no-start --no-restart-after-upgrade

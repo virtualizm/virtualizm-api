@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+#DEBHELPER#
+case $1 in 
+	configure)
+		#create directories and apply rights
+		install -d -m 0755 -o oms -g oms /var/log/oms
+		chown -R oms: /opt/oms
+	    ;;
+esac
+
+exit 0

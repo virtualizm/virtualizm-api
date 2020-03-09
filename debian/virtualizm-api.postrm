@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+#DEBHELPER#
+case $1 in
+	purge)
+		rm -rf /etc/oms /var/log/oms
+		;;
+	remove)
+		rm -rf /opt/oms/tmp/*
+		deluser --system oms
+		;;
+	abort-install)
+		deluser --quiet --system --remove-home oms || echo "Failed to delete user oms"
+		;;
+esac
+
+exit 0

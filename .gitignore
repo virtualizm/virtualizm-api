@@ -1,6 +1,7 @@
 # bundler
 /vendor/bundle/
 /vendor/cache/
+/vendor
 /.bundle/
 
 # configs

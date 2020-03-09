@@ -1,0 +1,12 @@
+/var/log/oms/*.log {
+	daily
+	rotate 7
+	copytruncate
+	delaycompress
+	compress
+	notifempty
+	missingok
+	postrotate
+		pkill rsyslogd -SIGHUP
+	endscript
+}

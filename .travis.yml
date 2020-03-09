@@ -1,15 +1,67 @@
----
 language: ruby
-rvm:
-  - 2.5.7
-branches:
-  only:
-    - master
-    - /^release-.*$/
-before_install:
-  - sudo apt-get -y install libvirt0 libvirt-dev
-  - gem install bundler
-  - bundle install --retry=3 -j4
-  - cp -v config/app.yml.distr config/app.yml
+
+services:
+  - docker
+
+git:
+  depth: false
+
+env:
+  global:
+    - PARALLEL_TEST_PROCESSORS=3
+  matrix:
+    - TEST_GROUP=1
+    - TEST_GROUP=2
+    - TEST_GROUP=3
+
+install: skip
+
+stages:
+  - test
+  - stable package
+  - nightly package
+
+# by default stage=test
+# matrix only works for top level script
 script:
-  - bundle exec rake test
+  - >
+    docker-compose run
+    -e "PARALLEL_TEST_PROCESSORS=$PARALLEL_TEST_PROCESSORS"
+    -e "TEST_GROUP=$TEST_GROUP"
+    app-deb10 make rspec
+
+jobs:
+  include:
+    - stage: test
+      name: Rubocop and Bundle Audit
+      script:
+        - docker-compose run app-deb10 make lint
+
+    - stage: stable package 
+      if: branch != master OR tag =~ ^.*$
+      name: Stable Debian 10(buster) package
+      script: &build_buster
+        - >
+          docker-compose run --name build-deb10 app-deb10 make package &&
+          docker commit virtualizm-build-deb10 virtualizm:built-deb10
+      deploy:
+        skip_cleanup: true
+        provider: script
+        script: docker run --name virtualizm-deploy-deb10 virtualizm:built-deb10 ci/deploy.sh "$API_ENDPOINT" buster "${TRAVIS_TAG%.*}" main /build/*.deb
+        on:
+          tags: true
+          condition: "$TRAVIS_TAG != *-master*"
+          repo: virtualizm/virtualizm-api
+
+
+    - stage: nightly package
+      if: branch = master
+      name: Nightly Debian 10(buster) package
+      script: *build_buster
+      deploy:
+        skip_cleanup: true
+        provider: script
+        script: docker run --name virtualizm-deploy-deb10 virtualizm:built-deb10 ci/deploy.sh "$API_ENDPOINT" buster nightly main /build/*.deb
+        on:
+          all_branches: true
+          repo: virtualizm/virtualizm-api

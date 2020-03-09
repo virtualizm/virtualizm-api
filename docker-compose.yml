@@ -1,0 +1,9 @@
+version: '3.4'
+services:
+  app-deb10:
+    build:
+      context: .
+      dockerfile: deb10.Dockerfile
+    image: virtualizm:deb10-build
+    container_name: deb10-build
+    hostname: deb10-build
