@@ -50,6 +50,9 @@ debian/changelog:
 	$(info >>> Generating changelog)
 	changelog-gen -p "$(pkg_name)" -d "$(debian_host_release)" -A "s/_/~/g" "s/-rc/~rc/"
 
+configs:
+	$(info:msg=Creating app.yml for build/tests)
+	cp config/app.build.yml config/app.yml
 
 .PHONY: bundler
 bundler:
@@ -69,7 +72,7 @@ gems-test: bundler
 	$(bundle_bin) clean
 
 .PHONY: lint
-lint: gems-test config/app.yml
+lint: gems-test configs
 	$(info:msg=Running rubocop and bundle audit)
 	RAILS_ENV=test $(bundle_bin) exec rubocop -P
 	RAILS_ENV=test $(bundle_bin) exec rake bundle:audit
@@ -106,6 +109,6 @@ package: debian/changelog
 	debuild $(debuild_flags) -uc -us -b
 
 .PHONY: test
-test: gems-test config/app.yml
+test: gems-test configs
 	$(info:msg=Running rspec tests)
 	RAILS_ENV=test $(bundle_bin) exec rake test
