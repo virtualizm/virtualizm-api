@@ -14,7 +14,7 @@ RUN	apt-get update && \
 RUN	echo "ALL            ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers && \
 	adduser --disabled-password --gecos "" build && \
 	curl http://pkg.yeti-switch.org/key.gpg			| apt-key add - && \
-	echo "deb http://pkg.yeti-switch.org/debian/buster unstable main"	>> /etc/apt/sources.list && \
+	echo "deb http://pkg.yeti-switch.org/debian/buster unstable main"	>> /etc/apt/sources.list
 
 RUN 	apt-get update && \
 	apt-get -y --no-install-recommends install \
