@@ -62,6 +62,18 @@ gems:	bundler
 	$(info >>> Install/Update gems)
 	$(bundle_bin) install --jobs=4 --deployment --without development test
 
+.PHONY: gems-test
+gems-test: bundler
+	$(info:msg=Install/Update gems for tests)
+	$(bundle_bin) install --jobs=4 --deployment --with development test
+	$(bundle_bin) clean
+
+.PHONY: lint
+lint: gems-test config/app.yml
+	$(info:msg=Running rubocop and bundle audit)
+	RAILS_ENV=test $(bundle_bin) exec rubocop -P
+	RAILS_ENV=test $(bundle_bin) exec rake bundle:audit
+
 
 .PHONY: install
 install: $(app_files)
@@ -93,18 +105,7 @@ package: debian/changelog
 	$(info >>> Building package)
 	debuild $(debuild_flags) -uc -us -b
 
-.PHONY: rspec
-rspec: gems-test config/app.yml
-ifdef spec
-        $(info:msg=Testing spec $(spec))
-        RAILS_ENV=test $(bundle_bin) exec rspec "$(spec)"
-else
-        $(info:msg=Running rspec tests)
-        RAILS_ENV=test $(bundle_bin) exec parallel_test \
-                  spec/ \
-                  --type rspec \
-                  $(if $(TEST_GROUP),--only-group $(TEST_GROUP),) \
-                  && script/format_runtime_log log/parallel_runtime_rspec.log \
-                  || { script/format_runtime_log log/parallel_runtime_rspec.log; false; }
-endif
-
+.PHONY: test
+test: gems-test config/app.yml
+	$(info:msg=Running rspec tests)
+	RAILS_ENV=test $(bundle_bin) exec rake test

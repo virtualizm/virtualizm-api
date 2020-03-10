@@ -6,14 +6,6 @@ services:
 git:
   depth: false
 
-env:
-  global:
-    - PARALLEL_TEST_PROCESSORS=3
-  matrix:
-    - TEST_GROUP=1
-    - TEST_GROUP=2
-    - TEST_GROUP=3
-
 install: skip
 
 stages:
@@ -25,10 +17,7 @@ stages:
 # matrix only works for top level script
 script:
   - >
-    docker-compose run
-    -e "PARALLEL_TEST_PROCESSORS=$PARALLEL_TEST_PROCESSORS"
-    -e "TEST_GROUP=$TEST_GROUP"
-    app-deb10 make rspec
+    docker-compose run app-deb10 make test
 
 jobs:
   include:
