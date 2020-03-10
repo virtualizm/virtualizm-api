@@ -22,6 +22,11 @@ script:
 jobs:
   include:
     - stage: test
+      name: Run rake tests
+      script:
+        - docker-compose run app-deb10 make test
+
+    - stage: test
       name: Rubocop and Bundle Audit
       script:
         - docker-compose run app-deb10 make lint
