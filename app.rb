@@ -5,16 +5,16 @@ require_relative 'config/environment'
 # initialize application
 begin
   require_relative 'config/initializer'
-rescue => e
-  STDERR.puts "<#{e.class}>: #{e.message}", e.backtrace
-  STDERR.puts 'Caused by:', "<#{e.cause.class}>: #{e.cause.message}", e.cause.backtrace if e.cause
+rescue StandardError => e
+  warn "<#{e.class}>: #{e.message}", e.backtrace
+  warn 'Caused by:', "<#{e.cause.class}>: #{e.cause.message}", e.cause.backtrace if e.cause
   Async.schedule_new do
     Process.kill('TERM', Process.pid) # will stop falcon server with exit code 15
   end
 end
 
 Libvirt.logger = Logger.new(STDOUT)
-Libvirt.logger.level = !!ENV['DEBUG'] ? :debug : :info
+Libvirt.logger.level = ENV['DEBUG'] ? :debug : :info
 
 # websockets
 AsyncCable.config.logger = Libvirt.logger
@@ -29,7 +29,7 @@ end
 # build application server
 Application.app = Rack::Builder.new do
   if Application.config.serve_static
-    urls = %w(/screenshots)
+    urls = %w[/screenshots]
     static_root = Application.root.join('public')
     Application.logger.info { "Serve static folders [#{urls.join(',')}] from #{static_root}" }
     use Rack::Protection::PathTraversal
@@ -47,7 +47,7 @@ Application.app = Rack::Builder.new do
   use Rack::Router::Middleware, logger: Application.logger do
     not_found :default
 
-    get '/ws_events', -> (env) do
+    get '/ws_events', ->(env) do
       Application.find_server(:events).call(env)
     end
 

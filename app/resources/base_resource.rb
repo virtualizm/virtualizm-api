@@ -14,7 +14,7 @@ class BaseResource
         @_object_class = class_or_name
         self._object_class_name = class_or_name.name
       else
-        raise ArgumentError, "class name or class must be provided"
+        raise ArgumentError, 'class name or class must be provided'
       end
     end
 
@@ -46,6 +46,7 @@ class BaseResource
       scope = apply_includes(scope, options[:includes], context)
       object = find_object(scope, key, context)
       raise JSONAPI::Errors::NotFound, key if object.nil?
+
       object
     end
 

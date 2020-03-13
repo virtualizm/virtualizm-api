@@ -30,7 +30,7 @@ module WithinAsyncReactor
       task.annotate(self.class)
 
       spec_task = task.async do |current_task|
-        current_task.annotate("running example")
+        current_task.annotate('running example')
 
         result = yield
 

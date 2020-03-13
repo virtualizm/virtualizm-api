@@ -62,7 +62,7 @@ class Hypervisor
     @on_open = []
     @on_vm_change = []
 
-    #force connect to initialize events callbacks
+    # force connect to initialize events callbacks
     set_connection
     try_connect
   end
@@ -203,7 +203,7 @@ class Hypervisor
     Application.logger.debug { "DOMAIN EVENT LIFECYCLE hv.id=#{id}, vm.id=#{dom.uuid}, event=#{event}, detail=#{detail}" }
     vm = virtual_machines.detect { |r| r.id == dom.uuid }
 
-    vm.state = vm.get_state
+    vm.sync_state
 
     @on_vm_change.each do |block|
       Async.run_new { block.call(self, vm) }

@@ -21,6 +21,7 @@ class SessionResource < BaseResource
       user_id = context[:request].session['user_id']
       user = user_id ? User.find_by(id: user_id) : nil
       raise JSONAPI::Errors::NotFound, 'session' if user.nil?
+
       user
     end
 
@@ -28,15 +29,17 @@ class SessionResource < BaseResource
       context = options[:context]
       user = User.authenticate(data)
       raise JSONAPI::Errors::ValidationError.new(:data, 'login or password invalid') if user.nil?
+
       context[:request].session['user_id'] = user.id
       user
     end
 
-    def destroy(object, options)
+    def destroy(_object, options)
       context = options[:context]
       user_id = context[:request].session['user_id']
       user = user_id ? User.find_by(id: user_id) : nil
       raise JSONAPI::Errors::NotFound, 'session' if user.nil?
+
       context[:request].session['user_id'] = nil
     end
   end

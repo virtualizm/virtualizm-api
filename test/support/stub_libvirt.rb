@@ -6,7 +6,7 @@ require_relative '../../app/models/hypervisor'
 require_relative 'stub_chain'
 
 module StubLibvirt
-  def wrap_application_load
+  def self.wrap_application_load
     Hypervisor._storage = []
 
     chain = StubChain.new
@@ -16,6 +16,4 @@ module StubLibvirt
 
     chain.use_stubs { yield }
   end
-
-  module_function :wrap_application_load
 end

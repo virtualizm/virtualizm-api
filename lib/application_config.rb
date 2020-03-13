@@ -36,7 +36,8 @@ class ApplicationConfig < Anyway::Config
   end
 
   def setup!
-    raise RuntimeError, "Config #{config_path} does not exist" unless File.file?(config_path)
+    raise "Config #{config_path} does not exist" unless File.file?(config_path)
+
     # loads config/app.yml
     load
     yield(self) if block_given?
@@ -48,9 +49,7 @@ class ApplicationConfig < Anyway::Config
 
   def check_attrs_from_file!
     missing = _file_config_keys.select { |name| public_send(name).nil? }
-    unless missing.empty?
-      raise RuntimeError, "Key(s) #{missing.join(', ')} must be present at #{config_path}"
-    end
+    raise "Key(s) #{missing.join(', ')} must be present at #{config_path}" unless missing.empty?
   end
 
   def config_path

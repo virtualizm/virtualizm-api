@@ -6,8 +6,6 @@ require 'securerandom'
 class VirtualMachine
   include LibvirtAsync::WithDbg
 
-
-
   attr_reader :domain,
               :hypervisor
 
@@ -38,13 +36,13 @@ class VirtualMachine
     @domain = domain
     @hypervisor = hypervisor
     setup_attributes
+    sync_state
   end
 
   def setup_attributes
     self.id = domain.uuid
     self.name = domain.name
-    self.state = get_state
-    self.cpus = get_cpus
+    self.cpus = running? ? domain.max_vcpus : nil
     self.memory = domain.max_memory
     self.xml = domain.xml_desc
   end
@@ -57,24 +55,15 @@ class VirtualMachine
     state == 'running'
   end
 
-  def get_cpus
-    if running?
-      domain.max_vcpus
-    else
-      # domain.vcpus.count
-    end
+  def sync_state
+    self.state = domain.get_state.first.to_s.downcase
   end
 
-  def get_state
-    state, _ = domain.get_state
-    state.to_s.downcase
-  end
-
-  # @param [Symbol]
+  # @param [String,Symbol]
   # @raise [ArgumentError]
   # @raise [Libvirt::Error]
-  def set_state(state)
-    case state
+  def update_state(state)
+    case state.to_s.upcase.to_sym
     when :RUNNING
       domain.start
     when :SHUTDOWN

@@ -71,6 +71,7 @@ module JSONAPI
 
       def detail
         return message if field.to_s == 'data'
+
         "#{field} - #{message}"
       end
     end

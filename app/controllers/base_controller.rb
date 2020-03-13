@@ -68,7 +68,7 @@ class BaseController
     #
     def around_action(*args, &block)
       options = args.extract_options!
-      callback = block_given? ? -> (_, action) { instance_exec(action, &block) } : args.first
+      callback = block_given? ? ->(_, action) { instance_exec(action, &block) } : args.first
       set_action_callback(:around, callback, options)
     end
 
@@ -80,12 +80,8 @@ class BaseController
       conditions = Array.wrap(options[:if])
       false_conditions = Array.wrap(options[:unless])
       prepend = options.fetch(:prepend, false)
-      if options[:only] && options[:only] != :all
-        conditions.push proc { Array.wrap(options[:only]).include?(@action) }
-      end
-      if options[:except]
-        conditions.push proc { Array.wrap(options[:except]).exclude?(@action) }
-      end
+      conditions.push(proc { Array.wrap(options[:only]).include?(@action) }) if options[:only] && options[:only] != :all
+      conditions.push(proc { Array.wrap(options[:except]).exclude?(@action) }) if options[:except]
 
       set_callback(
           :action,
@@ -103,7 +99,7 @@ class BaseController
     # @yieldparam exception [Exception]
     # @yieldreturn [Array<Integer,Hash,String>] response
     def rescue_from(exception_class, with: nil, &block)
-      raise ArgumentError, ":with option or block must be given" if with.nil? && !block_given?
+      raise ArgumentError, ':with option or block must be given' if with.nil? && !block_given?
 
       with = block if block_given?
       _exception_handlers.delete(exception_class)
@@ -135,8 +131,8 @@ class BaseController
         public_send(@action)
       end
     end
-  rescue => exception
-    rescue_with_handler(exception)
+  rescue StandardError => e
+    rescue_with_handler(e)
   end
 
   private
@@ -152,28 +148,31 @@ class BaseController
     self.class.logger
   end
 
-  def rescue_with_handler(e)
-    klass = _exception_handlers.keys.reverse.detect { |k| e.is_a?(k) }
-    raise e if klass.nil?
+  def rescue_with_handler(error)
+    klass = _exception_handlers.keys.reverse.detect { |k| error.is_a?(k) }
+    raise error if klass.nil?
 
     handler = _exception_handlers.fetch(klass)
-    logger.debug { "rescue from exception <#{e.class}: #{e.message}> with handler #{klass} #{handler}" }
+    logger.debug { "rescue from exception <#{error.class}: #{error.message}> with handler #{klass} #{handler}" }
     handler = method(handler).to_proc if handler.is_a?(Symbol)
-    instance_exec(e, &handler)
+    instance_exec(error, &handler)
   end
 
   def path_params
     return @path_params if defined?(@path_params)
+
     @path_params = env[Rack::Router::RACK_ROUTER_PATH_HASH] || {}
   end
 
   def query_params
     return @query_params if defined?(@query_params)
+
     @query_params = request.GET.deep_symbolize_keys
   end
 
   def json_body
     return @json_body if defined?(@json_body)
+
     @json_body = JSON.parse(request.body.read, symbolize_names: true)
   end
 
@@ -188,8 +187,8 @@ class BaseController
 
   delegate :session, :cookies, to: :request
 
-  def log_error(e, skip_backtrace: false)
-    logger.error { "<#{e.class}>: #{e.message}\n#{e.backtrace&.join("\n") unless skip_backtrace}" }
-    log_error(e.cause, skip_backtrace: skip_backtrace) if e.cause && e.cause != e
+  def log_error(error, skip_backtrace: false)
+    logger.error { "<#{error.class}>: #{error.message}\n#{error.backtrace&.join("\n") unless skip_backtrace}" }
+    log_error(error.cause, skip_backtrace: skip_backtrace) if error.cause && error.cause != error
   end
 end

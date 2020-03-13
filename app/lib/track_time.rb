@@ -6,7 +6,8 @@ module TrackTime
 
   def start_track(*keys)
     combined_key = keys.map(&method(:object_to_key))
-    raise ArgumentError, "keys already exist" if storage.key?(combined_key)
+    raise ArgumentError, 'keys already exist' if storage.key?(combined_key)
+
     storage[combined_key] = Time.now.to_f
     nil
   end
@@ -15,7 +16,8 @@ module TrackTime
   def end_track(*keys)
     t2 = Time.now.to_f
     combined_key = keys.map(&method(:object_to_key))
-    raise ArgumentError, "keys already exist" unless storage.key?(combined_key)
+    raise ArgumentError, 'keys already exist' unless storage.key?(combined_key)
+
     t1 = storage.delete(combined_key)
     (t2 - t1) * 1_000
   end
@@ -28,6 +30,7 @@ module TrackTime
     t1 = Time.now.to_f
     result = yield
     raise ArgumentError, 'last_track not cleared inside' unless _last_track.nil?
+
     t2 = Time.now.to_f
     self._last_track = t2 - t1
     result
@@ -42,6 +45,7 @@ module TrackTime
 
   def object_to_key(key)
     return key if key.is_a?(String)
+
     "#{key.class}:0x#{key.object_id.to_s(16)}"
   end
 

@@ -43,7 +43,7 @@ module MemoryDebug
     def analyze_generation(output_filename)
       filepath = "#{output_filename}.generation.txt"
       data = get_data
-      grouped = data.group_by{ |row| row['generation'] }.sort_by { |a| a[0].to_i }
+      grouped = data.group_by { |row| row['generation'] }.sort_by { |a| a[0].to_i }
 
       File.open(filepath, 'w') do |f|
         grouped.each do |k, v|
@@ -62,7 +62,7 @@ module MemoryDebug
 
       File.open(filepath, 'w') do |f|
         f.write "generation #{gen} objects #{data.count}\n\n"
-        grouped.each do |k,v|
+        grouped.each do |k, v|
           f.write "#{k} * #{v.count}\n"
         end
       end

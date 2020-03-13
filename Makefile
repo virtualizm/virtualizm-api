@@ -73,9 +73,8 @@ gems-test: bundler
 
 .PHONY: lint
 lint: gems-test configs
-	$(info:msg=Running rubocop and bundle audit)
+	$(info:msg=Running rubocop)
 	RAILS_ENV=test $(bundle_bin) exec rubocop -P
-	RAILS_ENV=test $(bundle_bin) exec rake bundle:audit
 
 
 .PHONY: install

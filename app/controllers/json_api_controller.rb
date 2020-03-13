@@ -86,7 +86,7 @@ class JsonApiController < BaseController
         includes: request.params['include'].to_s.split(','),
         fields: (request.params['fields'] || {}).transform_values { |v| v.split(',') }.symbolize_keys
     }
-    # todo verify options
+    # TODO: verify options
   end
 
   def json_api_data
@@ -98,18 +98,18 @@ class JsonApiController < BaseController
     data
   end
 
-  def json_api_exception(e)
-    unless e.is_a?(JSONAPI::Errors::Error)
-      log_error(e)
-      e = JSONAPI::Errors::ServerError.new
+  def json_api_exception(error)
+    unless error.is_a?(JSONAPI::Errors::Error)
+      log_error(error)
+      error = JSONAPI::Errors::ServerError.new
     end
     body = renderer.render_errors(
-        [e],
+        [error],
         jsonapi: { version: JSONAPI::Const::SPEC_VERSION },
-        class: e.render_classes,
-        expose: e.render_expose
+        class: error.render_classes,
+        expose: error.render_expose
     )
-    response_json_api(status: e.status, body: body)
+    response_json_api(status: error.status, body: body)
   end
 
   def response_json_api(status: 200, headers: {}, body: nil)
@@ -121,10 +121,11 @@ class JsonApiController < BaseController
   def json_api_verify_env!
     accepts = env['HTTP_ACCEPT'].to_s.split(';').first&.split(',') || []
     raise JSONAPI::Errors::BadRequest, 'Wrong Accept header' unless accepts.include?(JSONAPI::Const::MIME_TYPE)
-    if request.post? || request.put? || request.patch?
-      content_type = request.content_type
-      raise JSONAPI::Errors::BadRequest, 'Wrong Content-Type header' if content_type != JSONAPI::Const::MIME_TYPE
-    end
+
+    return if !request.post? && !request.put? && !request.patch?
+
+    content_type = request.content_type
+    raise JSONAPI::Errors::BadRequest, 'Wrong Content-Type header' if content_type != JSONAPI::Const::MIME_TYPE
   end
 
   def json_api_body

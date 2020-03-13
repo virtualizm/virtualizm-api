@@ -21,7 +21,7 @@ namespace :debug do
     code = <<-RUBY
       Thread.new do
         require 'json'
-        File.open('#{filepath}', 'w') do |f| 
+        File.open('#{filepath}', 'w') do |f|
           f.write JSON.pretty_generate(GC.stat)
         end
       end
@@ -61,7 +61,6 @@ namespace :debug do
 
   desc 'Analyze dump'
   namespace :analyze do
-
     desc 'Save how many objects was allocated on GC generation and still active'
     task :generation, [:dump_filepath, :output_filepath] do |_t, args|
       MemoryDebug::Analyzer.call(
@@ -80,6 +79,5 @@ namespace :debug do
           args.generation
       )
     end
-
   end
 end

@@ -3,7 +3,6 @@
 require 'async'
 
 module Async
-
   # @param timeout [Integer]
   # @yield periodic when timeout pass
   # @yieldparam [Async::Task]
