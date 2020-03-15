@@ -8,7 +8,6 @@ app_files :=	version.yml \
 		app \
 		bin \
 		config \
-		db \
 		lib \
 		public \
 		config.ru \

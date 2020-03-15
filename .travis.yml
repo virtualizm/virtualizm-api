@@ -36,12 +36,12 @@ jobs:
       name: Stable Debian 10(buster) package
       script: &build_buster
         - >
-          docker-compose run --name build-deb10 app-deb10 make package &&
-          docker commit virtualizm-build-deb10 virtualizm:built-deb10
+          docker-compose run --name virtualizm-build-deb10 app-deb10 make package &&
+          docker commit virtualizm-build-deb10 virtualizm:build-deb10
       deploy:
         skip_cleanup: true
         provider: script
-        script: docker run --name virtualizm-deploy-deb10 virtualizm:built-deb10 ci/deploy.sh "$API_ENDPOINT" buster "${TRAVIS_TAG%.*}" main /build/*.deb
+        script: docker run --name virtualizm-deploy-deb10 virtualizm:build-deb10 ci/deploy.sh "$API_ENDPOINT" buster "${TRAVIS_TAG%.*}" main /build/*.deb
         on:
           tags: true
           condition: "$TRAVIS_TAG != *-master*"
@@ -55,7 +55,7 @@ jobs:
       deploy:
         skip_cleanup: true
         provider: script
-        script: docker run --name virtualizm-deploy-deb10 virtualizm:built-deb10 ci/deploy.sh "$API_ENDPOINT" buster nightly main /build/*.deb
+        script: docker run --name virtualizm-deploy-deb10 virtualizm:build-deb10 ci/deploy.sh "$API_ENDPOINT" buster nightly main /build/*.deb
         on:
           all_branches: true
           repo: virtualizm/virtualizm-api

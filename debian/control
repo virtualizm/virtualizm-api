@@ -2,14 +2,14 @@ Source: virtualizm-api
 Section: admin
 Priority: extra
 Maintainer: ONAT Admin <admin@onat.edu.ua>
-Build-Depends: debhelper (>= 10.2.5), ruby, ruby-dev, build-essential, devscripts, fakeroot, zlib1g-dev
+Build-Depends: debhelper (>= 10.2.5), ruby2.6, ruby2.6-dev, build-essential, devscripts, fakeroot, zlib1g-dev
 Standards-Version: 4.2.0
 Vcs-Browser: https://github.com/virtualizm
 
 Package: virtualizm-api
 Architecture: all
 Multi-Arch: foreign
-Depends: ${shlibs:Depends}, ${misc:Depends}, ruby
+Depends: ${shlibs:Depends}, ${misc:Depends}, ruby2.6
 Pre-Depends: adduser
 Description: Virtualizm API backend
 
