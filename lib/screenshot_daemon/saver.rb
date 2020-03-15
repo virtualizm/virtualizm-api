@@ -2,7 +2,7 @@
 
 module ScreenshotDaemon
   class Saver
-    CALLBACK = -> (stream, events, opaque) do
+    CALLBACK = ->(stream, events, opaque) do
       return unless (Libvirt::Stream::EVENT_READABLE & events) != 0
 
       begin
@@ -12,14 +12,14 @@ module ScreenshotDaemon
           opaque.finish(true)
         when -1
           raise Libvirt::RecvError, 'error code -1 received'
-        when -2
+        when -2 # rubocop:disable Lint/EmptyWhen
           # nothing
         else
           opaque.write(data)
         end
       rescue Libvirt::Error => e
         opaque.finish(false, e.message)
-      rescue => e
+      rescue StandardError => e
         opaque.finish(false, "#{e.class}: #{e.message}")
         raise e
       end
@@ -57,7 +57,7 @@ module ScreenshotDaemon
       @stream = @vm.take_screenshot(self, &CALLBACK)
     rescue Libvirt::Error => e
       finish(false, e.message)
-    rescue => e
+    rescue StandardError => e
       finish(false, "#{e.class}: #{e.message}")
       raise e
     end
@@ -96,17 +96,17 @@ module ScreenshotDaemon
     end
 
     def cleanup
-      @tmp_file.close if @tmp_file
+      @tmp_file&.close
       FileUtils.rm_f(@tmp_path) if @tmp_path && File.exist?(@tmp_path)
 
       begin
-        @stream.event_remove_callback if @stream
+        @stream&.event_remove_callback
       rescue Libvirt::Error => e
         dbg('#cleanup') { "stream event_remove_callback error message=#{e.message}, vm=#{@vm.id}, path=#{@path}," }
       end
 
       begin
-        @stream.finish if @stream
+        @stream&.finish
       rescue Libvirt::Error => e
         dbg('#cleanup') { "stream finish error message=#{e.message}, vm=#{@vm.id}, path=#{@path}," }
       end

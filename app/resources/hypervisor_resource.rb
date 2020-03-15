@@ -32,13 +32,14 @@ class HypervisorResource < BaseResource
   object_class 'Hypervisor'
 
   class << self
-    def find_collection(options)
+    def find_collection(_options)
       Hypervisor.all
     end
 
-    def find_single(key, options)
+    def find_single(key, _options)
       object = Hypervisor.find_by(id: key)
       raise JSONAPI::Errors::NotFound, key if object.nil?
+
       object
     end
   end

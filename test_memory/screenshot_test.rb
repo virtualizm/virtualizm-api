@@ -20,12 +20,13 @@ Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 require_relative '../config/environment'
 # require_relative '../patches/libvirt_async'
 
-$test_storage = {}
+TEST_STORAGE = {}.freeze
 
 class Opaque
   CALLBACK = proc do |s, ev, op|
     # GC.start
     next unless (Libvirt::Stream::EVENT_READABLE & ev) != 0
+
     begin
       code, data = s.recv(256 * 1024)
     rescue Libvirt::Error => e
@@ -71,8 +72,8 @@ class Opaque
     finish(success, reason)
   end
 
-  def on_libvirt_error(stream, e)
-    STDOUT.puts "Opaque#on_libvirt_error #{@filepath} #{e}"
+  def on_libvirt_error(stream, error)
+    STDOUT.puts "Opaque#on_libvirt_error #{@filepath} #{error}"
     success, reason = finish_stream(stream)
     finish(success, reason)
   end
@@ -83,13 +84,13 @@ class Opaque
     STDOUT.puts "Opaque#finish_stream stream.event_remove_callback #{@filepath}"
     stream.event_remove_callback
     result = begin
-      STDOUT.puts "Opaque#finish_stream stream.finish #{@filepath}"
-      stream.finish
-      [true, nil]
-    rescue Libvirt::Error => e
-      STDERR.puts "Opaque#finish_stream stream.finish exception rescued #{e.class} #{e.message}"
-      [false, e.message]
-    end
+               STDOUT.puts "Opaque#finish_stream stream.finish #{@filepath}"
+               stream.finish
+               [true, nil]
+             rescue Libvirt::Error => e
+               warn "Opaque#finish_stream stream.finish exception rescued #{e.class} #{e.message}"
+               [false, e.message]
+             end
     STDOUT.puts "Opaque#finish_stream ends #{@filepath}"
     result
   end
@@ -139,18 +140,18 @@ class TestSessions < Minitest::Test
 
       opaque_cb = proc do |success|
         puts "Stream #{i} complete success=#{success}"
-        print_usage "after stream #{i} complete stream=#{$test_storage["stream#{i}"]}"
+        print_usage "after stream #{i} complete stream=#{TEST_STORAGE["stream#{i}"]}"
         GC.start
         print_usage "after stream #{i} complete and GC.start"
-        $test_storage.delete("stream#{i}")
+        TEST_STORAGE.delete("stream#{i}")
         # GC.start
         print_usage "after stream #{i} delete and GC.start"
-        async_teardown if $test_storage.empty?
+        async_teardown if TEST_STORAGE.empty?
       end
 
       opaque = Opaque.new("tmp/screenshots_test#{i}.pnm", opaque_cb)
 
-      $test_storage["stream#{i}"] = stream
+      TEST_STORAGE["stream#{i}"] = stream
 
       print_usage "test_screenshot_mem #{i} before stream start"
       vm.domain.screenshot(stream, 0)
@@ -165,9 +166,8 @@ class TestSessions < Minitest::Test
     print_usage 'test_screenshot_mem end'
     GC.start
     print_usage 'test_screenshot_mem end after GC.start'
-
-  rescue => e
-    STDERR.puts "#{e.class}>: #{e.message}", e.backtrace
+  rescue StandardError => e
+    warn "#{e.class}>: #{e.message}", e.backtrace
     exit 1
   end
 
@@ -178,7 +178,7 @@ class TestSessions < Minitest::Test
 
   def async_teardown
     async_schedule do
-      STDOUT.puts "async_teardown $test_storage=#{$test_storage}"
+      STDOUT.puts "async_teardown TEST_STORAGE=#{TEST_STORAGE}"
       Hypervisor.all.each { |hv| hv.connection.close }
       LibvirtAsync.unregister_implementations!
       async_schedule do

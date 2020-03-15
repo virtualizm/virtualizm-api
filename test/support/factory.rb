@@ -7,11 +7,13 @@ class Factory
 
   def self.define_trait(factory_name, trait_name, &block)
     raise ArgumentError, 'block is required' unless block_given?
+
     _traits[factory_name.to_sym][trait_name.to_sym] = block
   end
 
   def self.define_factory(factory_name, &block)
     raise ArgumentError, 'block is required' unless block_given?
+
     _factories[factory_name.to_sym] = block
   end
 
@@ -42,6 +44,7 @@ class Factory
     default_attrs = trait_names.each_with_object({}) do |trait_name, h|
       trait = _traits[factory_name.to_sym][trait_name.to_sym]
       raise ArgumentError "invalid trait #{trait}" if trait.nil?
+
       h.merge! instance_exec(h, &trait)
     end
     default_attrs.merge!(attrs)
@@ -51,6 +54,7 @@ class Factory
   def apply_factory(factory_name, attrs)
     factory = _factories[factory_name.to_sym]
     raise ArgumentError "invalid factory #{factory_name}" if factory.nil?
+
     instance_exec(attrs, &factory)
   end
 
@@ -63,15 +67,18 @@ class Factory
     name = attrs.delete(:name)
     ws_endpoint = attrs.delete(:ws_endpoint)
     conn_struct = create_struct(attrs) do
-      def register_domain_event_callback(_ev, _dom = nil, _opaque = nil, &block)
+      def register_domain_event_callback(_event, _dom = nil, _opaque = nil)
         nil
       end
-      def register_close_callback(_opaque = nil, &block)
+
+      def register_close_callback(_opaque = nil)
         nil
       end
+
       def list_all_domains
         []
       end
+
       def open
         true
       end
@@ -114,12 +121,6 @@ class Factory
   end
 
   define_trait :virtual_machine, :default do
-    # self.id = domain.uuid
-    #     self.name = domain.name
-    #     self.state = get_state
-    #     self.cpus = get_cpus
-    #     self.memory = domain.max_memory
-    #     self.xml = domain.xml_desc
     {
         uuid: SecureRandom.uuid,
         name: 'test_dom',
@@ -136,5 +137,4 @@ class Factory
         get_state: [:SHUTOFF, :DESTROYED]
     }
   end
-
 end

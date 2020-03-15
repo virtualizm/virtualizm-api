@@ -28,6 +28,7 @@ class Application
     name = name.to_sym
     @servers ||= {}
     raise ArgumentError, "server #{name} already added" if @servers.key?(name)
+
     @servers[name] = server
   end
 

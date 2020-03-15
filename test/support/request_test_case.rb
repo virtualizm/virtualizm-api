@@ -68,19 +68,17 @@ class RequestTestCase < Minitest::Test
   end
 
   define_cache(:last_response_json) do
-    begin
-      JSON.parse(last_response.body, symbolize_names: true)
-    rescue JSON::ParserError => e
-      # \u21B3 - DOWNWARDS ARROW WITH TIP RIGHTWARDS
-      bt = caller[3..5].map { |l| " \u21B3 #{l}" }.join("\n")
-      STDERR.puts "last_response_json ParserError #{e.message}\n#{bt}"
-      nil
-    end
+    JSON.parse(last_response.body, symbolize_names: true)
+  rescue JSON::ParserError => e
+    # \u21B3 - DOWNWARDS ARROW WITH TIP RIGHTWARDS
+    bt = caller[3..5].map { |l| " \u21B3 #{l}" }.join("\n")
+    warn "last_response_json ParserError #{e.message}\n#{bt}"
+    nil
   end
 
   # Set cookie for next request.
   # @param raw_cookie [String]
-  def set_cookie_header(raw_cookie)
+  def set_cookie_header(raw_cookie) # rubocop:disable Naming/AccessorMethodName
     header 'Cookie', raw_cookie
   end
 

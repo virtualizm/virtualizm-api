@@ -2,7 +2,7 @@
 
 class BaseCable < AsyncCable::Connection
   def on_data(data)
-    log(:info) { "#{self.class}/#{self.object_id.to_s(16)}/#{current_user&.id} received #{data.inspect}" }
+    log(:info) { "#{self.class}/#{object_id.to_s(16)}/#{current_user&.id} received #{data.inspect}" }
   end
 
   private

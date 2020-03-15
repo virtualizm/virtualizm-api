@@ -135,7 +135,7 @@ class TestHypervisors < RequestTestCase
                          {
                              status: '404',
                              title: 'id 999999 not found',
-                             detail: 'id 999999 not found',
+                             detail: 'id 999999 not found'
                          }
                      ]
   end

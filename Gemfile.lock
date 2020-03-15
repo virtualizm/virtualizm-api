@@ -194,7 +194,7 @@ DEPENDENCIES
   rack_router (>= 0.1.2)
   rake
   rbtrace
-  rubocop
+  rubocop (~> 0.80.1)
   websocket-client-simple
 
 BUNDLED WITH

@@ -10,7 +10,7 @@ module ScreenshotDaemon
 
     def initialize
       @timeout = 30
-      @debug = !!ENV['DEBUG']
+      @debug = !!ENV['DEBUG'] # rubocop:disable Style/DoubleNegation
       @quiet = false
 
       OptionParser.new do |opts|

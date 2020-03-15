@@ -40,7 +40,7 @@ gem 'anyway_config', '2.0.0.pre2'
 
 # Efficiently produce and consume JSON API documents.
 # https://github.com/jsonapi-rb/jsonapi-rb
-gem 'jsonapi-rb', require: %w(jsonapi/serializable jsonapi/deserializable)
+gem 'jsonapi-rb', require: %w[jsonapi/serializable jsonapi/deserializable]
 
 # Convert images.
 # https://github.com/minimagick/minimagick
@@ -50,16 +50,16 @@ gem 'nokogiri'
 
 group :development, :test do
   gem 'byebug'
-  gem 'rbtrace', require: false
-  gem 'get_process_mem', require: false
   gem 'gc_tracer', require: false
-  gem 'rubocop'
+  gem 'get_process_mem', require: false
+  gem 'rbtrace', require: false
+  gem 'rubocop', '~> 0.80.1'
 end
 
 group :test do
   gem 'minitest', require: false
-  gem 'rack-test', require: false
   gem 'minitest-reporters', require: false
+  gem 'rack-test', require: false
   # for script/client.rb
   gem 'httparty', require: false
   gem 'websocket-client-simple', require: false

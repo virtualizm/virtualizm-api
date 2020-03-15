@@ -28,13 +28,14 @@ class VirtualMachineResource < BaseResource
   object_class 'VirtualMachine'
 
   class << self
-    def find_collection(options)
+    def find_collection(_options)
       VirtualMachine.all
     end
 
-    def find_single(key, options)
+    def find_single(key, _options)
       object = VirtualMachine.find_by(id: key)
       raise JSONAPI::Errors::NotFound, key if object.nil?
+
       object
     end
 
@@ -43,12 +44,9 @@ class VirtualMachineResource < BaseResource
     end
 
     def update(object, data, _options)
-      state = data[:state].to_s.upcase.to_sym
-      begin
-        object.set_state(state)
-      rescue ArgumentError, Libvirt::Error => e
-        raise JSONAPI::Errors::ValidationError.new(:state, e.message)
-      end
+      object.update_state data[:state]
+    rescue ArgumentError, Libvirt::Error => e
+      raise JSONAPI::Errors::ValidationError.new(:state, e.message)
     end
   end
 end

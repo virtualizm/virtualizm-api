@@ -28,7 +28,7 @@ module Rack
       logger.info { "Started #{http_method} #{path}#{"?#{query}" if query}\n" }
     end
 
-    def log_end(env, began_at, status, _headers, _body)
+    def log_end(_env, began_at, status, _headers, _body)
       ends_at = Utils.clock_time
       took = (ends_at - began_at) * 1_000
       logger.info { "Responds with #{status} (took #{took.round(3)} ms)." }

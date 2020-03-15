@@ -31,7 +31,7 @@ class SpiceController < BaseController
 
   private
 
-  def respond_401(_e)
+  def respond_401(_error)
     response(status: 401, body: nil)
   end
 
