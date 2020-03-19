@@ -1,61 +1,56 @@
 language: ruby
-
 services:
-  - docker
-
+- docker
 git:
   depth: false
-
 install: skip
-
 stages:
-  - test
-  - stable package
-  - nightly package
-
-# by default stage=test
-# matrix only works for top level script
+- test
+- stable package
+- nightly package
 script:
-  - >
-    docker-compose run app-deb10 make test
+- 'docker-compose run app-deb10 make test
 
+  '
 jobs:
   include:
-    - stage: test
-      name: Run rake tests
-      script:
-        - docker-compose run app-deb10 make test
+  - stage: test
+    name: Run rake tests
+    script:
+    - docker-compose run app-deb10 make test
+  - stage: test
+    name: Rubocop and Bundle Audit
+    script:
+    - docker-compose run app-deb10 make lint
+  - stage: stable package
+    if: branch != master OR tag =~ ^.*$
+    name: Stable Debian 10(buster) package
+    script: &1
+    - 'docker-compose run --name virtualizm-build-deb10 app-deb10 make package &&
+      docker commit virtualizm-build-deb10 virtualizm:build-deb10
 
-    - stage: test
-      name: Rubocop and Bundle Audit
-      script:
-        - docker-compose run app-deb10 make lint
-
-    - stage: stable package 
-      if: branch != master OR tag =~ ^.*$
-      name: Stable Debian 10(buster) package
-      script: &build_buster
-        - >
-          docker-compose run --name virtualizm-build-deb10 app-deb10 make package &&
-          docker commit virtualizm-build-deb10 virtualizm:build-deb10
-      deploy:
-        skip_cleanup: true
-        provider: script
-        script: docker run --name virtualizm-deploy-deb10 virtualizm:build-deb10 ci/deploy.sh "$API_ENDPOINT" buster "${TRAVIS_TAG%.*}" main /build/*.deb
-        on:
-          tags: true
-          condition: "$TRAVIS_TAG != *-master*"
-          repo: virtualizm/virtualizm-api
-
-
-    - stage: nightly package
-      if: branch = master
-      name: Nightly Debian 10(buster) package
-      script: *build_buster
-      deploy:
-        skip_cleanup: true
-        provider: script
-        script: docker run --name virtualizm-deploy-deb10 virtualizm:build-deb10 ci/deploy.sh "$API_ENDPOINT" buster nightly main /build/*.deb
-        on:
-          all_branches: true
-          repo: virtualizm/virtualizm-api
+      '
+    deploy:
+      skip_cleanup: true
+      provider: script
+      script: docker run --name virtualizm-deploy-deb10 virtualizm:build-deb10 ci/deploy.sh
+        "$API_ENDPOINT" buster "${TRAVIS_TAG%.*}" main /build/*.deb
+      on:
+        tags: true
+        condition: "$TRAVIS_TAG != *-master*"
+        repo: virtualizm/virtualizm-api
+  - stage: nightly package
+    if: branch = master
+    name: Nightly Debian 10(buster) package
+    script: *1
+    deploy:
+      skip_cleanup: true
+      provider: script
+      script: docker run --name virtualizm-deploy-deb10 virtualizm:build-deb10 ci/deploy.sh
+        "$API_ENDPOINT" buster nightly main /build/*.deb
+      on:
+        all_branches: true
+        repo: virtualizm/virtualizm-api
+env:
+  global:
+    secure: 5HphdV6UjmmmeHHa0wBCJCKke1zO1fmIpjlY6MByGOcuKAHnnNuHn97bvjkXzYuNMBQFOd6MtGzz8oeC3WQljKU31kxGa5RDw6HnbuzHGUomKE3tWMQwLBgNna26eZSQp6OlAc0OnP/YI3rEVksn1cpNN8a/PdG+h5w3gZ34pTgTJd0eCqeLFRrQWdTkQv7S84q9azK3QjTj5UV7WVR12k7fkb1H3C6tfmb2eQqAtSafZByjMo+QfXkMWWdh5hDhFCHb3BLMtS0m/Po+6J8V85SyUpYSq2EvVIrASzF4IqFkdV/Mln0tStyyhqqnv1TMn6nsk1yMEvBM1Y97F8BouMVz64uOY5i06GMKP5zvry9pYtijBJX37LDE/tMBlrDlnT/uvzrP5ASbLK80YBTolkSlrU3N2IHdz+Mwn5b0uFfF3Pljlokp6FEHccFDaOYa74eJAXtOaQ/AkC/9nRxW3yrvXCvgZFKwDxwTK6zNihYeoa8nX0LzlKh5qiLOZLXfSrIuuQK90LQ5SgDpOx57fhEASIBO/l1G3svBaeWKKA+1VKvljMzns18cnR0jDRLnZFiAnKumqGOPxpFmB+/FIHD/GSp/FMunrspJKxOMcV9HcQnHDzsHLwxEJfOJE/Q4wIlPyTjabbb++uK4NXebgOC9YTp7hff4k9Bn/cQ4OB8=
