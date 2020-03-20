@@ -5,21 +5,19 @@ Description=Virtualizm API backend
 WantedBy=multi-user.target
 
 [Service]
-Type=forking
-PIDFile=/var/run/virtualizm-api/virtualizm-api.pid
+Type=simple
+#PIDFile=/var/run/virtualizm-api/virtualizm-api.pid
 WorkingDirectory=/opt/virtualizm-api
 RuntimeDirectory=virtualizm-api
 User=virtualizm
 LimitNOFILE=65536
 LimitCORE=infinity
 Environment=PATH=/usr/bin:/opt/virtualizm-api/vendor/bundler/bin:$PATH
-EnvironmentFile=/etc/virtualizm-api/environment
 Environment=BUNDLE_GEMFILE=/opt/virtualizm-api/Gemfile
 Environment=GEM_HOME=/opt/virtualizm-api/vendor/bundle
 Environment=RAILS_ENV=production
-Environment=GEM_PATH=/opt/virtualizm-api/vendor/bundler:/opt/oms/vendor/bundle
-ExecStart=/usr/bin/ruby /opt/oms/vendor/bundler/bin/bundle exec puma -C /etc/oms/puma.rb --daemon
-ExecStop=/usr/bin/ruby /opt/oms/vendor/bundler/bin/bundle exec pumactl -S /var/run/oms/puma.state stop
-
+Environment=RAKE_ENV=production
+Environment=GEM_PATH=/opt/virtualizm-api/vendor/bundler:/opt/virtualizm-api/vendor/bundle
+ExecStart=/usr/bin/ruby /opt/virtualizm-api/vendor/bundler/bin/bundle exec falcon serve -b http://localhost -p 4567 -n 1 --threaded
 Restart=on-abnormal
 
