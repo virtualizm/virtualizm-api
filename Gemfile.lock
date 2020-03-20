@@ -17,7 +17,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (6.0.2.1)
+    activesupport (6.0.2.2)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 0.7, < 2)
       minitest (~> 5.1)
@@ -60,7 +60,7 @@ GEM
     build-environment (1.13.0)
     builder (3.2.4)
     byebug (11.1.1)
-    concurrent-ruby (1.1.5)
+    concurrent-ruby (1.1.6)
     console (1.8.2)
     event_emitter (0.2.6)
     falcon (0.35.6)
@@ -166,7 +166,7 @@ GEM
     websocket-client-simple (0.3.0)
       event_emitter
       websocket
-    zeitwerk (2.2.2)
+    zeitwerk (2.3.0)
 
 PLATFORMS
   ruby
