@@ -6,6 +6,7 @@ app_dir := /opt/virtualizm-api
 conf_dir := /etc/virtualizm
 app_files :=	version.yml \
 		app \
+                app.rb \
 		bin \
 		config \
 		lib \

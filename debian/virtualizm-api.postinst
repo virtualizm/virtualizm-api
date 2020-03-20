@@ -6,7 +6,7 @@ set -e
 case $1 in 
 	configure)
 		#create directories and apply rights
-		install -d -m 0755 -o virtualizm -g virtualizm /var/log/viatualizm-api
+		install -d -m 0755 -o virtualizm -g virtualizm /var/log/virtualizm-api
 		chown -R virtualizm: /opt/virtualizm-api
 	    ;;
 esac
