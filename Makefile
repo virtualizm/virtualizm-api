@@ -2,7 +2,7 @@ SHELL := /bin/sh
 
 pkg_name := virtualizm-api
 user := virtualizm
-app_dir := /opt/virtualizm
+app_dir := /opt/virtualizm-api
 conf_dir := /etc/virtualizm
 app_files :=	version.yml \
 		app \

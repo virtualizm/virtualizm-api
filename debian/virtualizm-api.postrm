@@ -5,14 +5,14 @@ set -e
 #DEBHELPER#
 case $1 in
 	purge)
-		rm -rf /etc/oms /var/log/oms
+		rm /var/log/virtualizm-api
 		;;
 	remove)
-		rm -rf /opt/oms/tmp/*
-		deluser --system oms
+		rm -rf /opt/virtualizm-api/tmp/*
+		deluser --system virtualizm
 		;;
 	abort-install)
-		deluser --quiet --system --remove-home oms || echo "Failed to delete user oms"
+		deluser --quiet --system --remove-home virtualizm || echo "Failed to delete user virtualizm"
 		;;
 esac
 
