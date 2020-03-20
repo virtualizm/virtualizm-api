@@ -1,2 +1,2 @@
-if $programname == 'oms' then action(type="omfile" FileCreateMode="0644" File="/var/log/oms/oms.log" fileOwner="oms" fileGroup="oms")
-if $programname == 'oms' then stop
+if $programname == 'virtualizm-api' then action(type="omfile" FileCreateMode="0644" File="/var/log/virtualizm-api/main.log" fileOwner="virtualizm" fileGroup="virtualizm")
+if $programname == 'virtualizm-api' then stop

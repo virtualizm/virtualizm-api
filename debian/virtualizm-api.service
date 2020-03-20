@@ -1,23 +1,23 @@
 [Unit]
-Description=ONAT management system
+Description=Virtualizm API backend
 
 [Install]
 WantedBy=multi-user.target
 
 [Service]
 Type=forking
-PIDFile=/var/run/oms/oms.pid
-WorkingDirectory=/opt/oms
-RuntimeDirectory=oms
-#User=oms
+PIDFile=/var/run/virtualizm-api/virtualizm-api.pid
+WorkingDirectory=/opt/virtualizm-api
+RuntimeDirectory=virtualizm-api
+User=virtualizm
 LimitNOFILE=65536
 LimitCORE=infinity
-Environment=PATH=/usr/bin:/opt/oms/vendor/bundler/bin:$PATH
-EnvironmentFile=/etc/oms/environment
-Environment=BUNDLE_GEMFILE=/opt/oms/Gemfile
-Environment=GEM_HOME=/opt/oms/vendor/bundle
+Environment=PATH=/usr/bin:/opt/virtualizm-api/vendor/bundler/bin:$PATH
+EnvironmentFile=/etc/virtualizm-api/environment
+Environment=BUNDLE_GEMFILE=/opt/virtualizm-api/Gemfile
+Environment=GEM_HOME=/opt/virtualizm-api/vendor/bundle
 Environment=RAILS_ENV=production
-Environment=GEM_PATH=/opt/oms/vendor/bundler:/opt/oms/vendor/bundle
+Environment=GEM_PATH=/opt/virtualizm-api/vendor/bundler:/opt/oms/vendor/bundle
 ExecStart=/usr/bin/ruby /opt/oms/vendor/bundler/bin/bundle exec puma -C /etc/oms/puma.rb --daemon
 ExecStop=/usr/bin/ruby /opt/oms/vendor/bundler/bin/bundle exec pumactl -S /var/run/oms/puma.state stop
 

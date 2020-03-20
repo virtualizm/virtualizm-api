@@ -6,12 +6,12 @@ set -e
 case $1 in
 	install)
 		# skip if it is reinstall and such user exists
-		if [ -n "$2" ] && id -g oms 2>&1 1>/dev/null; then
+		if [ -n "$2" ] && id -g virtualizm 2>&1 1>/dev/null; then
 			break
 		else
 			adduser --system --group --disabled-password \
 				--shell "/bin/bash" --gecos "" \
-				--no-create-home --home /opt/oms oms
+				--no-create-home --home /opt/virtualizm-api virtualizm
 		fi
 		;;
 esac
