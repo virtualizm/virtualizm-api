@@ -41,5 +41,5 @@ echo -e "\n\e[33m> add pkg to repo $repo\e[39m\n"
 curl -sSf -X POST "${api_base}/repos/$repo/file/$dir" || fail "can't add pkg to repo"
 
 echo -e "\n\e[33m> update publish $release/$distr \e[39m\n"
-curl -sSf -X PUT -H 'Content-Type: application/json' --data '{ "Signing": {"PassphraseFile":"/home/pkg/gpg_pass"} }' "${api_base}/publish/${release}/${distr}" || fail "can't publish"
+curl -sSf -X PUT -H 'Content-Type: application/json' --data '{}' "${api_base}/publish/${release}/${distr}" || fail "can't publish"
 
