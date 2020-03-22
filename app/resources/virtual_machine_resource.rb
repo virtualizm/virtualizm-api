@@ -10,7 +10,8 @@ class VirtualMachineResource < BaseResource
                :state,
                :memory,
                :cpus,
-               :xml
+               :xml,
+               :tags
 
     has_one :hypervisor do
       linkage always: true
@@ -43,10 +44,19 @@ class VirtualMachineResource < BaseResource
       super.merge HypervisorResource.render_classes
     end
 
-    def update(object, data, _options)
-      object.update_state data[:state]
-    rescue ArgumentError, Libvirt::Error => e
-      raise JSONAPI::Errors::ValidationError.new(:state, e.message)
+    def update(object, attrs, _options)
+      begin
+        object.update_state attrs[:state] if attrs.key?(:state)
+        object.update_tags attrs[:tags] if attrs.key?(:tags)
+      rescue ArgumentError, Libvirt::Errors::Error => e
+        raise JSONAPI::Errors::ValidationError.new(:state, e.message)
+      end
+
+      begin
+        object.update_tags attrs[:tags] if attrs.key?(:tags)
+      rescue ArgumentError, Libvirt::Errors::Error => e
+        raise JSONAPI::Errors::ValidationError.new(:tags, e.message)
+      end
     end
   end
 end

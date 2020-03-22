@@ -115,7 +115,15 @@ class Factory
 
   define_factory :virtual_machine do |attrs|
     hv = attrs.delete(:hypervisor) || attrs.delete(:hv)
-    dom_struct = create_struct(attrs)
+    dom_struct = create_struct(attrs) do
+      def get_metadata(*_args)
+        _metadata
+      end
+
+      def set_metadata(*_args); end
+
+      def start(*_args); end
+    end
 
     VirtualMachine.new(hypervisor: hv, domain: dom_struct)
   end
@@ -125,6 +133,7 @@ class Factory
         uuid: SecureRandom.uuid,
         name: 'test_dom',
         get_state: [:RUNNING, :BOOTED],
+        _metadata: '<tags></tags>',
         max_vcpus: '1',
         vcpus: [Object.new],
         max_memory: '512MB',

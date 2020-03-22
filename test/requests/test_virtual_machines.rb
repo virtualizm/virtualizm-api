@@ -61,6 +61,7 @@ class TestVirtualMachines < RequestTestCase
                              attributes: {
                                  name: vms.first.name,
                                  state: 'running',
+                                 tags: [],
                                  memory: vms.first.memory,
                                  cpus: vms.first.cpus,
                                  xml: vms.first.xml
@@ -79,6 +80,7 @@ class TestVirtualMachines < RequestTestCase
                              attributes: {
                                  name: vms.second.name,
                                  state: 'shutoff',
+                                 tags: [],
                                  memory: vms.second.memory,
                                  cpus: vms.second.cpus,
                                  xml: vms.second.xml
@@ -141,6 +143,7 @@ class TestVirtualMachines < RequestTestCase
                              attributes: {
                                  name: vms.first.name,
                                  state: 'running',
+                                 tags: [],
                                  memory: vms.first.memory,
                                  cpus: vms.first.cpus,
                                  xml: vms.first.xml
@@ -159,6 +162,7 @@ class TestVirtualMachines < RequestTestCase
                              attributes: {
                                  name: vms.second.name,
                                  state: 'shutoff',
+                                 tags: [],
                                  memory: vms.second.memory,
                                  cpus: vms.second.cpus,
                                  xml: vms.second.xml
@@ -259,6 +263,7 @@ class TestVirtualMachines < RequestTestCase
                          attributes: {
                              name: vm.name,
                              state: 'running',
+                             tags: [],
                              memory: vm.memory,
                              cpus: vm.cpus,
                              xml: vm.xml
@@ -288,6 +293,7 @@ class TestVirtualMachines < RequestTestCase
                          attributes: {
                              name: vm.name,
                              state: 'running',
+                             tags: [],
                              memory: vm.memory,
                              cpus: vm.cpus,
                              xml: vm.xml
@@ -342,6 +348,7 @@ class TestVirtualMachines < RequestTestCase
                          attributes: {
                              name: vm.name,
                              state: 'running',
+                             tags: [],
                              memory: vm.memory,
                              cpus: vm.cpus,
                              xml: vm.xml
@@ -439,6 +446,78 @@ class TestVirtualMachines < RequestTestCase
                          attributes: {
                              name: vm.name,
                              state: 'running'
+                         },
+                         relationships: {
+                             hypervisor: {
+                                 links: { self: "/api/hypervisors/#{hv.id}" },
+                                 data: { type: 'hypervisors', id: hv.id.to_s }
+                             }
+                         },
+                         links: { self: "/api/virtual-machines/#{vm.id}" }
+                     }
+  end
+
+  def test_patch_virtual_machines_state
+    user = User.all.first
+    raw_cookie = sign_in_for_cookie(user)
+    set_cookie_header raw_cookie
+
+    patch_json_api "/api/virtual-machines/#{vm.id}", {
+        data: {
+            id: vm.id,
+            type: 'virtual-machines',
+            attributes: { state: 'running' }
+        }
+    }.to_json
+
+    assert_http_status 200
+    assert_json_body jsonapi: { version: JSONAPI::Const::SPEC_VERSION },
+                     data: {
+                         id: vm.id,
+                         type: 'virtual-machines',
+                         attributes: {
+                             name: vm.name,
+                             state: 'running',
+                             tags: [],
+                             memory: vm.memory,
+                             cpus: vm.cpus,
+                             xml: vm.xml
+                         },
+                         relationships: {
+                             hypervisor: {
+                                 links: { self: "/api/hypervisors/#{hv.id}" },
+                                 data: { type: 'hypervisors', id: hv.id.to_s }
+                             }
+                         },
+                         links: { self: "/api/virtual-machines/#{vm.id}" }
+                     }
+  end
+
+  def test_patch_virtual_machines_tags
+    user = User.all.first
+    raw_cookie = sign_in_for_cookie(user)
+    set_cookie_header raw_cookie
+
+    patch_json_api "/api/virtual-machines/#{vm.id}", {
+        data: {
+            id: vm.id,
+            type: 'virtual-machines',
+            attributes: { tags: [] }
+        }
+    }.to_json
+
+    assert_http_status 200
+    assert_json_body jsonapi: { version: JSONAPI::Const::SPEC_VERSION },
+                     data: {
+                         id: vm.id,
+                         type: 'virtual-machines',
+                         attributes: {
+                             name: vm.name,
+                             state: 'running',
+                             tags: [],
+                             memory: vm.memory,
+                             cpus: vm.cpus,
+                             xml: vm.xml
                          },
                          relationships: {
                              hypervisor: {

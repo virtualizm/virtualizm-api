@@ -29,7 +29,7 @@ class Opaque
 
     begin
       code, data = s.recv(256 * 1024)
-    rescue Libvirt::Error => e
+    rescue Libvirt::Errors::Error => e
       op.on_libvirt_error(s, e)
       next
     end
@@ -87,7 +87,7 @@ class Opaque
                STDOUT.puts "Opaque#finish_stream stream.finish #{@filepath}"
                stream.finish
                [true, nil]
-             rescue Libvirt::Error => e
+             rescue Libvirt::Errors::Error => e
                warn "Opaque#finish_stream stream.finish exception rescued #{e.class} #{e.message}"
                [false, e.message]
              end
