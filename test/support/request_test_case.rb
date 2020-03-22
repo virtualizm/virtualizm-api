@@ -78,7 +78,7 @@ class RequestTestCase < Minitest::Test
 
   # Set cookie for next request.
   # @param raw_cookie [String]
-  def set_cookie_header(raw_cookie) # rubocop:disable Naming/AccessorMethodName
+  def set_cookie_header(raw_cookie)
     header 'Cookie', raw_cookie
   end
 

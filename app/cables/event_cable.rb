@@ -6,9 +6,13 @@ class EventCable < BaseCable
   identified_as :event
   STREAM_NAME = 'event'
 
+  def self.vm_attributes(vm)
+    { state: vm.state, tags: vm.tags }
+  end
+
   def self.update_virtual_machine(vm)
     logger&.info(name) { "broadcast update_virtual_machine vm=#{vm.id}" }
-    payload = { id: vm.id, hypervisor_id: vm.hypervisor.id, attributes: { state: vm.state } }
+    payload = { id: vm.id, hypervisor_id: vm.hypervisor.id, attributes: vm_attributes(vm) }
     broadcast(type: 'update_virtual_machine', payload: payload)
   end
 

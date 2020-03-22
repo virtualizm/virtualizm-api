@@ -24,6 +24,10 @@ Naming/MethodParameterName:
     - hv
     - id
 
+Naming/AccessorMethodName:
+  Exclude:
+    - test/**/*.rb
+
 Style/HashEachMethods:
   Enabled: true
 

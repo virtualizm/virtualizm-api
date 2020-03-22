@@ -17,7 +17,7 @@ module ScreenshotDaemon
         else
           opaque.write(data)
         end
-      rescue Libvirt::Error => e
+      rescue Libvirt::Errors::Error => e
         opaque.finish(false, e.message)
       rescue StandardError => e
         opaque.finish(false, "#{e.class}: #{e.message}")
@@ -55,7 +55,7 @@ module ScreenshotDaemon
       @tmp_file = Async::IO::Stream.new(io_wrapper)
 
       @stream = @vm.take_screenshot(self, &CALLBACK)
-    rescue Libvirt::Error => e
+    rescue Libvirt::Errors::Error => e
       finish(false, e.message)
     rescue StandardError => e
       finish(false, "#{e.class}: #{e.message}")
@@ -101,13 +101,13 @@ module ScreenshotDaemon
 
       begin
         @stream&.event_remove_callback
-      rescue Libvirt::Error => e
+      rescue Libvirt::Errors::Error => e
         dbg('#cleanup') { "stream event_remove_callback error message=#{e.message}, vm=#{@vm.id}, path=#{@path}," }
       end
 
       begin
         @stream&.finish
-      rescue Libvirt::Error => e
+      rescue Libvirt::Errors::Error => e
         dbg('#cleanup') { "stream finish error message=#{e.message}, vm=#{@vm.id}, path=#{@path}," }
       end
 

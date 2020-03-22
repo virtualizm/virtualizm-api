@@ -167,7 +167,7 @@ class Hypervisor
     # c.set_keep_alive(10, 2)
     dbg { "#{self.class}#_open_connection Connected name=#{name} id=#{id}, uri=#{uri}" }
     @is_connected = true
-  rescue Libvirt::Error => e
+  rescue Libvirt::Errors::Error => e
     dbg { "#{self.class}#_open_connection Failed #{e.message} name=#{name} id=#{id}, uri=#{uri}" }
     @is_connected = false
   end
@@ -196,6 +196,11 @@ class Hypervisor
         :LIFECYCLE,
         &method(:dom_event_callback_lifecycle)
     )
+
+    connection.register_domain_event_callback(
+        :METADATA_CHANGE,
+        &method(:dom_event_callback_metadata_change)
+    )
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_LIFECYCLE
@@ -204,6 +209,18 @@ class Hypervisor
     vm = virtual_machines.detect { |r| r.id == dom.uuid }
 
     vm.sync_state
+
+    @on_vm_change.each do |block|
+      Async.run_new { block.call(self, vm) }
+    end
+  end
+
+  def dom_event_callback_metadata_change(_conn, dom, type, uri, _opaque)
+    Application.logger.debug { "DOMAIN EVENT METADATA_CHANGE hv.id=#{id}, vm.id=#{dom.uuid}, type=#{type}, uri=#{uri}" }
+    return if type != :ELEMENT || uri != VirtualMachine::TAGS_URI
+
+    vm = virtual_machines.detect { |r| r.id == dom.uuid }
+    vm.sync_tags
 
     @on_vm_change.each do |block|
       Async.run_new { block.call(self, vm) }

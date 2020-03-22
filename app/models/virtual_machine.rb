@@ -6,6 +6,8 @@ require 'securerandom'
 class VirtualMachine
   include LibvirtAsync::WithDbg
 
+  TAGS_URI = 'virtualizm.org/tags'
+
   attr_reader :domain,
               :hypervisor
 
@@ -14,7 +16,8 @@ class VirtualMachine
                 :cpus,
                 :memory,
                 :state,
-                :xml
+                :xml,
+                :tags
 
   class << self
     def all
@@ -37,6 +40,7 @@ class VirtualMachine
     @hypervisor = hypervisor
     setup_attributes
     sync_state
+    sync_tags
   end
 
   def setup_attributes
@@ -47,8 +51,15 @@ class VirtualMachine
     self.xml = domain.xml_desc
   end
 
-  def tags
-    nil
+  def sync_tags
+    xml = domain.get_metadata(
+        type: :ELEMENT,
+        uri: TAGS_URI,
+        flags: :AFFECT_CONFIG
+    )
+    @tags = TagsXml.load(xml).tags
+  rescue Libvirt::Errors::LibError => _e
+    @tags = []
   end
 
   def running?
@@ -61,13 +72,13 @@ class VirtualMachine
 
   # @param [String,Symbol]
   # @raise [ArgumentError]
-  # @raise [Libvirt::Error]
+  # @raise [Libvirt::Errors::Error]
   def update_state(state)
     case state.to_s.upcase.to_sym
     when :RUNNING
       domain.start
     when :SHUTDOWN
-      domain.shutdown(1)
+      domain.shutdown(:ACPI_POWER_BTN)
     when :SHUTOFF
       domain.power_off
     when :SUSPEND
@@ -86,6 +97,22 @@ class VirtualMachine
     else
       raise ArgumentError, "invalid state #{state}"
     end
+
+    sync_state
+  end
+
+  # @param tags [Array<String>]
+  def update_tags(tags)
+    xml = TagsXml.build(tags).to_xml
+    domain.set_metadata(
+        xml,
+        type: :ELEMENT,
+        key: 'virtualizm',
+        uri: TAGS_URI,
+        flags: :AFFECT_CONFIG
+    )
+
+    sync_tags
   end
 
   # Take screenshot asynchronously.
@@ -124,7 +151,7 @@ class VirtualMachine
 
   # def start
   #   domain.create
-  # rescue Libvirt::Error => exception
+  # rescue Libvirt::Errors::Error => exception
   #   case exception.libvirt_message
   #   when 'Requested operation is not valid: domain is already running'
   #     return domain

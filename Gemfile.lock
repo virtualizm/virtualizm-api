@@ -7,13 +7,6 @@ GIT
       async (~> 1.24)
       libvirt_ffi
 
-GIT
-  remote: https://github.com/senid231/libvirt_ffi.git
-  revision: 325602625f87df2790e86d64a0e5d3857b56a01f
-  specs:
-    libvirt_ffi (0.4.1)
-      ffi (>= 1.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -91,6 +84,8 @@ GEM
     jsonapi-renderer (0.2.2)
     jsonapi-serializable (0.3.1)
       jsonapi-renderer (~> 0.2.0)
+    libvirt_ffi (0.5.1)
+      ffi (>= 1.0)
     localhost (1.1.6)
     mapping (1.1.1)
     mime-types (3.3.1)
@@ -182,7 +177,7 @@ DEPENDENCIES
   httparty
   jsonapi-rb
   libvirt_async!
-  libvirt_ffi!
+  libvirt_ffi (~> 0.5)
   mini_magick
   minitest
   minitest-reporters
