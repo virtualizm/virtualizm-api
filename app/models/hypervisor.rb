@@ -187,8 +187,8 @@ class Hypervisor
     self.cpu_sockets = node_info.sockets
     self.cpu_cores = node_info.cores
     self.cpu_threads = node_info.threads
-    self.total_memory = node_info.memory
-    self.free_memory = node_info.memory
+    self.total_memory = Libvirt::Util.parse_memory(node_info.memory, :KiB)
+    self.free_memory = connection.free_memory
   end
 
   def register_dom_event_callbacks

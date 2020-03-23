@@ -99,6 +99,7 @@ class Factory
         lib_version: '1.0',
         hostname: 'test',
         max_vcpus: 4,
+        free_memory: 1024 * 1024,
         capabilities: [],
         node_info: {
             model: 'Test',
@@ -107,8 +108,8 @@ class Factory
             nodes: '1',
             sockets: '123',
             cores: '4',
-            threads: '1GB',
-            memory: '1GB'
+            threads: '4',
+            memory: 1024 # KiB
         }
     }
   end
