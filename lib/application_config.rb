@@ -14,7 +14,7 @@ class ApplicationConfig < Anyway::Config
   attr_config :users,
               :clusters,
               :cookie_secret,
-              :cookie_same_site,
+              :cookie_params,
               :libvirt_rw,
               :serve_static,
               :cookie_name,
@@ -24,7 +24,7 @@ class ApplicationConfig < Anyway::Config
   attrs_from_file :users,
                   :clusters,
                   :cookie_secret,
-                  :cookie_same_site,
+                  :cookie_params,
                   :libvirt_rw,
                   :serve_static,
                   :reconnect_timeout
