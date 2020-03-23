@@ -64,7 +64,9 @@ class TestVirtualMachines < RequestTestCase
                                  tags: [],
                                  memory: vms.first.memory,
                                  cpus: vms.first.cpus,
-                                 xml: vms.first.xml
+                                 xml: vms.first.xml,
+                                 graphics: [],
+                                 disks: []
                              },
                              relationships: {
                                  hypervisor: {
@@ -83,7 +85,9 @@ class TestVirtualMachines < RequestTestCase
                                  tags: [],
                                  memory: vms.second.memory,
                                  cpus: vms.second.cpus,
-                                 xml: vms.second.xml
+                                 xml: vms.second.xml,
+                                 graphics: [],
+                                 disks: []
                              },
                              relationships: {
                                  hypervisor: {
@@ -146,7 +150,9 @@ class TestVirtualMachines < RequestTestCase
                                  tags: [],
                                  memory: vms.first.memory,
                                  cpus: vms.first.cpus,
-                                 xml: vms.first.xml
+                                 xml: vms.first.xml,
+                                 graphics: [],
+                                 disks: []
                              },
                              relationships: {
                                  hypervisor: {
@@ -165,7 +171,9 @@ class TestVirtualMachines < RequestTestCase
                                  tags: [],
                                  memory: vms.second.memory,
                                  cpus: vms.second.cpus,
-                                 xml: vms.second.xml
+                                 xml: vms.second.xml,
+                                 graphics: [],
+                                 disks: []
                              },
                              relationships: {
                                  hypervisor: {
@@ -266,7 +274,9 @@ class TestVirtualMachines < RequestTestCase
                              tags: [],
                              memory: vm.memory,
                              cpus: vm.cpus,
-                             xml: vm.xml
+                             xml: vm.xml,
+                             graphics: [],
+                             disks: []
                          },
                          relationships: {
                              hypervisor: {
@@ -296,7 +306,9 @@ class TestVirtualMachines < RequestTestCase
                              tags: [],
                              memory: vm.memory,
                              cpus: vm.cpus,
-                             xml: vm.xml
+                             xml: vm.xml,
+                             graphics: [],
+                             disks: []
                          },
                          relationships: {
                              hypervisor: {
@@ -351,7 +363,9 @@ class TestVirtualMachines < RequestTestCase
                              tags: [],
                              memory: vm.memory,
                              cpus: vm.cpus,
-                             xml: vm.xml
+                             xml: vm.xml,
+                             graphics: [],
+                             disks: []
                          },
                          relationships: {
                              hypervisor: {
@@ -481,7 +495,9 @@ class TestVirtualMachines < RequestTestCase
                              tags: [],
                              memory: vm.memory,
                              cpus: vm.cpus,
-                             xml: vm.xml
+                             xml: vm.xml,
+                             graphics: [],
+                             disks: []
                          },
                          relationships: {
                              hypervisor: {
@@ -517,7 +533,9 @@ class TestVirtualMachines < RequestTestCase
                              tags: [],
                              memory: vm.memory,
                              cpus: vm.cpus,
-                             xml: vm.xml
+                             xml: vm.xml,
+                             graphics: [],
+                             disks: []
                          },
                          relationships: {
                              hypervisor: {

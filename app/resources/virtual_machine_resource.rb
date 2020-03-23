@@ -11,7 +11,9 @@ class VirtualMachineResource < BaseResource
                :memory,
                :cpus,
                :xml,
-               :tags
+               :tags,
+               :graphics,
+               :disks
 
     has_one :hypervisor do
       linkage always: true

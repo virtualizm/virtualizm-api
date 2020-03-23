@@ -5,6 +5,8 @@ require 'bundler'
 rack_env = ENV.fetch('RACK_ENV', 'development')
 Bundler.require(:default, rack_env)
 
+require 'libvirt/xml'
+
 # load local libs
 require_relative '../lib/rack_improved_logger'
 require_relative '../lib/rack_x_request_id'

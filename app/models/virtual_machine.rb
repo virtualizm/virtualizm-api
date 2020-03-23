@@ -17,7 +17,10 @@ class VirtualMachine
                 :memory,
                 :state,
                 :xml,
-                :tags
+                :tags,
+                :xml_data,
+                :graphics,
+                :disks
 
   class << self
     def all
@@ -44,11 +47,14 @@ class VirtualMachine
   end
 
   def setup_attributes
-    self.id = domain.uuid
-    self.name = domain.name
-    self.cpus = running? ? domain.max_vcpus : nil
-    self.memory = domain.max_memory
     self.xml = domain.xml_desc
+    self.xml_data = Libvirt::Xml::Domain.load(xml)
+    self.id = xml_data.uuid
+    self.name = xml_data.name
+    self.cpus = running? ? xml_data.vcpus.count : xml_data.vcpu.value
+    self.memory = xml_data.memory.bytes
+    self.graphics = xml_data.device_graphics&.map { |g| g.to_h.reject { |_, v| v.nil? } }
+    self.disks = xml_data.device_disks&.map { |d| d.to_h.reject { |_, v| v.nil? } }
   end
 
   def sync_tags

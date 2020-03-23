@@ -123,6 +123,15 @@ class Factory
       def set_metadata(*_args); end
 
       def start(*_args); end
+
+      def xml_desc
+        %(<domain>
+          <uuid>#{uuid}</uuid>
+          <name>#{name}</name>
+          <vcpu>#{_vcpu}</vcpu>
+          <memory unit="#{_memory[:unit]}">#{_memory[:value]}</memory>
+        </domain>)
+      end
     end
 
     VirtualMachine.new(hypervisor: hv, domain: dom_struct)
@@ -134,10 +143,8 @@ class Factory
         name: 'test_dom',
         get_state: [:RUNNING, :BOOTED],
         _metadata: '<tags></tags>',
-        max_vcpus: '1',
-        vcpus: [Object.new],
-        max_memory: '512MB',
-        xml_desc: '<xml>test</xml>'
+        _memory: { value: '512', unit: 'MB' },
+        _vcpu: 1
     }
   end
 
