@@ -38,7 +38,12 @@ Application.app = Rack::Builder.new do
 
   use Rack::XRequestId, logger: Application.logger
   use Rack::MethodOverride
-  use Rack::Session::Cookie, key: Application.config.cookie_name, secret: Application.config.cookie_secret
+
+  use Rack::Session::Cookie,
+      key: Application.config.cookie_name,
+      secret: Application.config.cookie_secret,
+      same_site: Application.config.cookie_same_site
+
   use Rack::ImprovedLogger, Application.logger
   use Rack::Protection::CookieTossing
   use Rack::Protection::IPSpoofing
