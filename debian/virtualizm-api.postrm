@@ -5,7 +5,7 @@ set -e
 #DEBHELPER#
 case $1 in
 	purge)
-		rm /var/log/virtualizm-api
+		rm -fr /var/log/virtualizm-api
 		;;
 	remove)
 		rm -rf /opt/virtualizm-api/tmp/*
