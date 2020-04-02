@@ -17,7 +17,8 @@ GEM
       tzinfo (~> 1.1)
       zeitwerk (~> 2.2)
     ansi (1.5.0)
-    anyway_config (2.0.0.pre2)
+    anyway_config (2.0.0.rc1)
+      ruby-next-core (>= 0.5.1)
     ast (2.4.0)
     async (1.24.2)
       console (~> 1.0)
@@ -148,6 +149,7 @@ GEM
       rexml
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 2.0)
+    ruby-next-core (0.5.3)
     ruby-progressbar (1.10.1)
     samovar (2.1.4)
       console (~> 1.0)
@@ -168,7 +170,7 @@ PLATFORMS
 
 DEPENDENCIES
   activesupport
-  anyway_config (= 2.0.0.pre2)
+  anyway_config (= 2.0.0.rc1)
   async_cable
   byebug
   falcon
