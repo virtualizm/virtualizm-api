@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'bundler/setup'
+
+require_relative '../config/environment'
+Async do
+
+  require_relative '../config/initializer'
+
+  Libvirt.logger = Logger.new(STDOUT)
+  Libvirt.logger.level = :debug
+
+# You can add fixtures and/or initialization code here to make experimenting
+# with your gem easier. You can also use a different console, if you like.
+
+# (If you use this, don't forget to add pry to your Gemfile!)
+# require 'pry'
+# Pry.start
+
+  require 'irb'
+  IRB.start(__FILE__)
+
+rescue => e
+  warn "<#{e.class}>: #{e.message}", e.backtrace
+  warn 'Caused by:', "<#{e.cause.class}>: #{e.cause.message}", e.cause.backtrace if e.cause
+ensure
+  Async.schedule_new do
+    Process.kill('TERM', Process.pid) # will stop falcon server with exit code 15
+  end
+end

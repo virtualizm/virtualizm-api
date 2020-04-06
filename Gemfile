@@ -48,6 +48,8 @@ gem 'mini_magick'
 
 gem 'nokogiri'
 
+gem 'net-ldap'
+
 group :development, :test do
   gem 'byebug'
   gem 'gc_tracer', require: false

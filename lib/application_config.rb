@@ -55,6 +55,6 @@ class ApplicationConfig < Anyway::Config
   end
 
   def config_path
-    @config_path ||= default_config_path(config_name)
+    @config_path ||= Anyway::Settings.default_config_path.call(config_name)
   end
 end

@@ -47,7 +47,13 @@ LibvirtAsync.use_logger!(STDOUT)
 LibvirtAsync.logger.level = ENV['LIBVIRT_DEBUG'].present? ? :debug : :info
 LibvirtAsync.register_implementations!
 
-User.load_storage Application.config.users
+if File.exist? Application.root.join('config/ldap.yml')
+  ldap_config = YAML.load_file Application.root.join('config/ldap.yml')
+  User.load_strategy(:ldap, ldap_config)
+else
+  User.load_strategy(:storage, Application.config.users)
+end
+
 Hypervisor.load_storage Application.config.clusters
 
 Application.logger.info 'Hypervisors connecting...'
