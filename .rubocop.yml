@@ -9,6 +9,12 @@ AllCops:
     - tmp/**/*
     - public/**/*
 
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
+
 Layout/LineLength:
   Max: 180
 
@@ -23,6 +29,7 @@ Naming/MethodParameterName:
     - vm
     - hv
     - id
+    - dn
 
 Naming/AccessorMethodName:
   Exclude:

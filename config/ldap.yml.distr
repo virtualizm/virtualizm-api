@@ -1,0 +1,10 @@
+host: "ldap.virtualizm.org"
+port: 636
+#attribute: "uid" # default
+base: "ou=employees,dc=virtualizm,dc=org"
+encryption: "simple_tls"
+#group_base: "ou=groups,dc=virtualizm,dc=org" # optional
+#group_attribute: "uniqueMember" # default
+#required_groups: # optional
+#  - attribute: "uniqueMember"
+#    base: "cn=api,ou=groups,dc=virtualizm,dc=org"

@@ -6,6 +6,7 @@
 
 # configs
 /config/app.yml
+/config/ldap.yml
 
 # public
 /public/screenshots/
