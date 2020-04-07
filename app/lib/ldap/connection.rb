@@ -99,6 +99,15 @@ module LDAP
       entry
     end
 
+    def find_login(login)
+      find_by(search_attribute, login).first
+    rescue ClientError => e
+      warn e.message
+      return if e.ldap_message == 'Invalid Credentials'
+
+      raise e
+    end
+
     # @param dn [String] dn value of user ldap entry.
     # @return [Array<String>] cn records of groups where user included.
     # @raise [LDAP::Connection::Error] when failed to search in ldap.
