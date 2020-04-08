@@ -24,7 +24,7 @@ class VirtualMachine
 
   class << self
     def all
-      Hypervisor.all.map(&:virtual_machines).flatten
+      Hypervisor.all.select(&:connected?).map(&:virtual_machines).flatten
     end
 
     def find_by(id:)

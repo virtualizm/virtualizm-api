@@ -58,6 +58,11 @@ Hypervisor.load_storage Application.config.clusters
 
 Application.logger.info 'Hypervisors connecting...'
 Hypervisor.all.each do |hv|
+  unless hv.connected?
+    Application.logger.info "> Hypervisor #{hv.id} #{hv.name} #{hv.uri} failed to connect"
+    next
+  end
+
   Application.logger.info "> Hypervisor #{hv.id} #{hv.name} #{hv.uri} connected"
   hv.virtual_machines.each do |vm|
     Application.logger.info ">> VM #{vm.id} #{vm.name} retrieved"
