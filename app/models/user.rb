@@ -10,8 +10,8 @@ class User
       raise NotImplementedError, "override #load in #{self.class}"
     end
 
-    # @param login [String]
-    # @param password [String]
+    # @param [String]
+    # @param [String]
     # @return [User, nil]
     def authenticate(_login, _password)
       raise NotImplementedError, "override #authenticate in #{self.class}"
@@ -20,6 +20,10 @@ class User
     # @return [Array<User>]
     def all
       raise NotImplementedError, "override #all in #{self.class}"
+    end
+
+    def find_by(_id)
+      raise NotImplementedError, "override #find_by in #{self.class}"
     end
   end
 
@@ -36,6 +40,10 @@ class User
     def all
       @users
     end
+
+    def find_by(id)
+      @users.detect { |user| user.id.to_s == id.to_s }
+    end
   end
 
   class LdapStrategy < BaseStrategy
@@ -46,18 +54,29 @@ class User
 
     def authenticate(login, password)
       entry = @ldap.authenticate!(login, password)
-      User.new(
-          id: entry['uidnumber']&.first,
-          login: login,
-          email: entry['mail']&.first,
-          full_name: entry['cn']&.first
-      )
+      build_user(entry, login)
     rescue LDAP::Connection::NotAuthorized => _e
       nil
     end
 
     def all
       @users
+    end
+
+    def find_by(login)
+      entry = @ldap.find_login(login)
+      build_user(entry, login)
+    end
+
+    private
+
+    def build_user(entry, login)
+      User.new(
+          id: login,
+          login: login,
+          email: entry['mail']&.first,
+          full_name: entry['cn']&.first
+      )
     end
   end
 
@@ -76,7 +95,7 @@ class User
     end
 
     def find_by(id:)
-      all.detect { |user| user.id.to_s == id.to_s }
+      _strategy.find_by(id)
     end
   end
 
