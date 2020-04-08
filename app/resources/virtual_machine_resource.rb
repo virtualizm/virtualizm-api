@@ -31,6 +31,15 @@ class VirtualMachineResource < BaseResource
   object_class 'VirtualMachine'
 
   class << self
+    def top_level_meta(type, _options)
+      return unless type == :collection
+
+      not_connected = Hypervisor.all.reject(&:connected?)
+      return if not_connected.empty?
+
+      { not_connected_hypervisors: not_connected.map(&:id) }
+    end
+
     def find_collection(_options)
       VirtualMachine.all
     end

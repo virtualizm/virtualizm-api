@@ -119,5 +119,9 @@ class BaseResource
     def render_classes
       { _object_class.name.to_sym => self::Serializable }
     end
+
+    def top_level_meta(_type, _options)
+      nil
+    end
   end
 end

@@ -65,7 +65,7 @@ class JsonApiController < BaseController
     includes = options[:includes]
     fields = options[:fields] || {}
 
-    renderer.render(
+    body = renderer.render(
         object,
         jsonapi: { version: JSONAPI::Const::SPEC_VERSION },
         class: klass.render_classes,
@@ -73,6 +73,11 @@ class JsonApiController < BaseController
         fields: fields,
         include: includes
     )
+
+    meta = klass.top_level_meta(object.is_a?(Array) ? :collection : :single, options)
+    body[:meta] = meta unless meta.nil?
+
+    body
   end
 
   def json_api_context
