@@ -19,5 +19,6 @@ Environment=RAILS_ENV=production
 Environment=RAKE_ENV=production
 Environment=GEM_PATH=/opt/virtualizm-api/vendor/bundler:/opt/virtualizm-api/vendor/bundle
 ExecStart=/usr/bin/ruby /opt/virtualizm-api/vendor/bundler/bin/bundle exec falcon serve -b http://localhost -p 4567 -n 1 --threaded
+KillSignal=SIGINT
 Restart=on-abnormal
 
