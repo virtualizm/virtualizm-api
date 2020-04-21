@@ -55,7 +55,7 @@ group :development, :test do
   gem 'gc_tracer', require: false
   gem 'get_process_mem', require: false
   gem 'rbtrace', require: false
-  gem 'rubocop', '~> 0.81.0'
+  gem 'rubocop', '~> 0.82.0'
 end
 
 group :test do
