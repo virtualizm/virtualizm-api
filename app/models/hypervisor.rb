@@ -1,30 +1,30 @@
 # frozen_string_literal: true
 
 class Hypervisor
-  include LibvirtAsync::WithDbg
+  include ::Loggable
 
   class_attribute :_storage, instance_accessor: false
 
   class << self
     def load_storage(clusters)
-      dbg { "#{name}.load_storage #{clusters}" }
+      dbg { clusters }
       self._storage = clusters.map do |cluster|
         Hypervisor.new(**cluster.symbolize_keys)
       end
-      dbg { "#{name}.load_storage loaded size=#{_storage.size}" }
+      dbg { "loaded size=#{_storage.size}" }
     end
 
     def all
-      dbg { "#{name}.all" }
+      dbg { 'started' }
       result = _storage
-      dbg { "#{name}.all found size=#{result.size}" }
+      dbg { "found size=#{result.size}" }
       result
     end
 
     def find_by(id:)
-      dbg { "#{name}.find_by id=#{id}" }
+      dbg { "id=#{id}" }
       result = _storage.detect { |hv| hv.id.to_s == id.to_s }
-      dbg { "#{name}.find_by found id=#{result&.id}, name=#{result&.name}, uri=#{result&.uri}" }
+      dbg { "found id=#{result&.id}, name=#{result&.name}, uri=#{result&.uri}" }
       result
     end
   end
@@ -52,7 +52,7 @@ class Hypervisor
                 :capabilities
 
   def initialize(id:, name:, uri:, ws_endpoint:)
-    dbg { "#{self.class}#initialize id=#{id}, name=#{name}, uri=#{uri}" }
+    dbg { "id=#{id}, name=#{name}, uri=#{uri}, ws_endpoint=#{ws_endpoint}" }
 
     @id = id
     @name = name
@@ -64,7 +64,6 @@ class Hypervisor
 
     # force connect to initialize events callbacks
     set_connection
-    try_connect
   end
 
   def to_json(_opts = nil)
@@ -116,33 +115,44 @@ class Hypervisor
     connection.stream(Libvirt::Stream::NONBLOCK)
   end
 
+  def try_connect
+    _open_connection
+
+    unless connected?
+      info { "#{hv_info} connect failed. Retry is scheduled." }
+      schedule_try_connect
+      return
+    end
+
+    info { "#{hv_info} connected." }
+    setup_attributes
+    register_dom_event_callbacks
+    register_close_callback
+    load_virtual_machines
+    @on_open.each { |cb| cb.call(self) }
+  rescue StandardError => e
+    log_error(e)
+    info { "#{hv_info} connect failed due to error. Retry is scheduled." }
+    schedule_try_connect
+  end
+
   private
 
   def set_connection
-    dbg { "#{self.class}#_open_connection Opening RW connection to name=#{name} id=#{id}, uri=#{uri}" }
+    dbg { "Opening RW connection to #{hv_info}, uri=#{uri}" }
     @connection = Libvirt::Connection.new(uri)
-    _open_connection
-  end
-
-  def try_connect
-    _open_connection
-    if connected?
-      Application.logger.info { "Hypervisor##{id} connected." }
-      setup_attributes
-      register_dom_event_callbacks
-      register_close_callback
-      load_virtual_machines
-      @on_open.each { |cb| cb.call(self) }
-    else
-      Application.logger.info { "Hypervisor##{id} connect failed. Retry is scheduled." }
-      schedule_try_connect
-    end
+    @is_connected = false
+  rescue StandardError => e
+    log_error(e)
   end
 
   def schedule_try_connect
     Async.run_after(Application.config.reconnect_timeout) do
       try_connect
     end
+  rescue StandardError => e
+    log_error(e)
+    raise e
   end
 
   def register_close_callback
@@ -150,25 +160,25 @@ class Hypervisor
   end
 
   def when_closed(reason)
-    Application.logger.info { "Hypervisor##{id} connection was closed (#{reason}). Retry is scheduled." }
+    info { "#{hv_info} connection was closed (#{reason}). Retry is scheduled." }
     @on_close.each { |cb| cb.call(self) }
     @virtual_machines = []
     try_connect
   end
 
   def load_virtual_machines
-    dbg { "#{self.class}#load_virtual_machines id=#{id}, name=#{name}, uri=#{uri}" }
+    dbg { "#{hv_info}, uri=#{uri}" }
     @virtual_machines = connection.list_all_domains.map { |vm| VirtualMachine.new(domain: vm, hypervisor: self) }
-    dbg { "#{self.class}#load_virtual_machines loaded size=#{virtual_machines.size} id=#{id}, name=#{name}, uri=#{uri}" }
+    dbg { "loaded size=#{virtual_machines.size} #{hv_info}, uri=#{uri}" }
   end
 
   def _open_connection
     connection.open
     # c.set_keep_alive(10, 2)
-    dbg { "#{self.class}#_open_connection Connected name=#{name} id=#{id}, uri=#{uri}" }
+    dbg { "Connected #{hv_info}, uri=#{uri}" }
     @is_connected = true
   rescue Libvirt::Errors::Error => e
-    dbg { "#{self.class}#_open_connection Failed #{e.message} name=#{name} id=#{id}, uri=#{uri}" }
+    dbg { "Failed #{e.message} #{hv_info}, uri=#{uri}" }
     @is_connected = false
   end
 
@@ -205,25 +215,58 @@ class Hypervisor
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_LIFECYCLE
   def dom_event_callback_lifecycle(_conn, dom, event, detail, _opaque)
-    Application.logger.debug { "DOMAIN EVENT LIFECYCLE hv.id=#{id}, vm.id=#{dom.uuid}, event=#{event}, detail=#{detail}" }
+    dbg { "DOMAIN EVENT LIFECYCLE #{hv_info}, #{dom_info(dom)}, event=#{event}, detail=#{detail}" }
     vm = virtual_machines.detect { |r| r.id == dom.uuid }
 
-    vm.sync_state
-
-    @on_vm_change.each do |block|
-      Async.run_new { block.call(self, vm) }
+    if vm.nil?
+      vm = VirtualMachine.new(domain: dom, hypervisor: self)
+      dbg { "DOMAIN ADD #{hv_info}, #{dom_info(dom)}" }
+      virtual_machines << vm
+      vm_changed(:create, vm)
+      return
     end
+
+    if event == :UNDEFINED || (event == :STOPPED && !vm.is_persistent)
+      dbg { "DOMAIN REMOVE #{hv_info}, #{dom_info(dom)}" }
+      virtual_machines.delete(vm)
+      vm.state = event.to_s.downcase
+      vm_changed(:destroy, vm)
+      return
+    end
+
+    vm.sync_state
+    vm.sync_persistent
+    vm_changed(:update, vm)
+  rescue StandardError => e
+    log_error(e)
   end
 
   def dom_event_callback_metadata_change(_conn, dom, type, uri, _opaque)
-    Application.logger.debug { "DOMAIN EVENT METADATA_CHANGE hv.id=#{id}, vm.id=#{dom.uuid}, type=#{type}, uri=#{uri}" }
+    dbg { "DOMAIN EVENT METADATA_CHANGE #{hv_info}, #{dom_info(dom)}, type=#{type}, uri=#{uri}" }
     return if type != :ELEMENT || uri != VirtualMachine::TAGS_URI
 
     vm = virtual_machines.detect { |r| r.id == dom.uuid }
     vm.sync_tags
 
+    vm_changed(:update, vm)
+  rescue StandardError => e
+    log_error(e)
+  end
+
+  def vm_changed(action, vm)
     @on_vm_change.each do |block|
-      Async.run_new { block.call(self, vm) }
+      Async.run_new { block.call(action, vm) }
     end
+  end
+
+  def hv_info
+    "hv.id=#{id}, hv.name=#{name}"
+  end
+
+  def dom_info(dom)
+    "dom.id=#{dom.uuid}, dom.name=#{dom.name}, dom.persistent=#{dom.persistent?}"
+  rescue Libvirt::Errors::LibError => _e
+    # when domain already deleted we can't check if it's persisted or not
+    "dom.id=#{dom.uuid}, dom.name=#{dom.name}"
   end
 end

@@ -66,7 +66,8 @@ class TestVirtualMachines < RequestTestCase
                                  cpus: vms.first.cpus,
                                  xml: vms.first.xml,
                                  graphics: [],
-                                 disks: []
+                                 disks: [],
+                                 is_persistent: true
                              },
                              relationships: {
                                  hypervisor: {
@@ -87,7 +88,8 @@ class TestVirtualMachines < RequestTestCase
                                  cpus: vms.second.cpus,
                                  xml: vms.second.xml,
                                  graphics: [],
-                                 disks: []
+                                 disks: [],
+                                 is_persistent: true
                              },
                              relationships: {
                                  hypervisor: {
@@ -152,7 +154,8 @@ class TestVirtualMachines < RequestTestCase
                                  cpus: vms.first.cpus,
                                  xml: vms.first.xml,
                                  graphics: [],
-                                 disks: []
+                                 disks: [],
+                                 is_persistent: true
                              },
                              relationships: {
                                  hypervisor: {
@@ -173,7 +176,8 @@ class TestVirtualMachines < RequestTestCase
                                  cpus: vms.second.cpus,
                                  xml: vms.second.xml,
                                  graphics: [],
-                                 disks: []
+                                 disks: [],
+                                 is_persistent: true
                              },
                              relationships: {
                                  hypervisor: {
@@ -276,7 +280,8 @@ class TestVirtualMachines < RequestTestCase
                              cpus: vm.cpus,
                              xml: vm.xml,
                              graphics: [],
-                             disks: []
+                             disks: [],
+                             is_persistent: true
                          },
                          relationships: {
                              hypervisor: {
@@ -308,7 +313,8 @@ class TestVirtualMachines < RequestTestCase
                              cpus: vm.cpus,
                              xml: vm.xml,
                              graphics: [],
-                             disks: []
+                             disks: [],
+                             is_persistent: true
                          },
                          relationships: {
                              hypervisor: {
@@ -365,7 +371,8 @@ class TestVirtualMachines < RequestTestCase
                              cpus: vm.cpus,
                              xml: vm.xml,
                              graphics: [],
-                             disks: []
+                             disks: [],
+                             is_persistent: true
                          },
                          relationships: {
                              hypervisor: {
@@ -497,7 +504,8 @@ class TestVirtualMachines < RequestTestCase
                              cpus: vm.cpus,
                              xml: vm.xml,
                              graphics: [],
-                             disks: []
+                             disks: [],
+                             is_persistent: true
                          },
                          relationships: {
                              hypervisor: {
@@ -535,7 +543,8 @@ class TestVirtualMachines < RequestTestCase
                              cpus: vm.cpus,
                              xml: vm.xml,
                              graphics: [],
-                             disks: []
+                             disks: [],
+                             is_persistent: true
                          },
                          relationships: {
                              hypervisor: {

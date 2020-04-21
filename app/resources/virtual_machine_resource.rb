@@ -13,7 +13,8 @@ class VirtualMachineResource < BaseResource
                :xml,
                :tags,
                :graphics,
-               :disks
+               :disks,
+               :is_persistent
 
     has_one :hypervisor do
       linkage always: true

@@ -2,9 +2,10 @@
 
 require 'tempfile'
 require 'securerandom'
+# require_relative '../lib/loggable'
 
 class VirtualMachine
-  include LibvirtAsync::WithDbg
+  include ::Loggable
 
   TAGS_URI = 'virtualizm.org/tags'
 
@@ -20,7 +21,8 @@ class VirtualMachine
                 :tags,
                 :xml_data,
                 :graphics,
-                :disks
+                :disks,
+                :is_persistent
 
   class << self
     def all
@@ -43,6 +45,7 @@ class VirtualMachine
     @hypervisor = hypervisor
     setup_attributes
     sync_state
+    sync_persistent
     sync_tags
   end
 
@@ -74,6 +77,10 @@ class VirtualMachine
 
   def sync_state
     self.state = domain.get_state.first.to_s.downcase
+  end
+
+  def sync_persistent
+    self.is_persistent = domain.persistent?
   end
 
   # @param [String,Symbol]

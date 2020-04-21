@@ -8,6 +8,7 @@ require 'rack/test'
 require 'minitest/reporters'
 require 'active_support/all'
 
+require File.expand_path '../lib/loggable.rb', __dir__
 support_paths = File.expand_path 'support/**/*.rb', __dir__
 Dir.glob(support_paths).each { |filename| require_relative filename }
 
