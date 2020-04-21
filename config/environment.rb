@@ -16,6 +16,7 @@ require_relative '../lib/async_util'
 
 # load application
 require_relative '../lib/application'
+require_relative '../lib/loggable'
 
 Application.setup_env(rack_env)
 Application.setup_root File.expand_path('..', __dir__)

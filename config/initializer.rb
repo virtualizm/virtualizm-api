@@ -58,6 +58,7 @@ Hypervisor.load_storage Application.config.clusters
 
 Application.logger.info 'Hypervisors connecting...'
 Hypervisor.all.each do |hv|
+  hv.try_connect
   unless hv.connected?
     Application.logger.info "> Hypervisor #{hv.id} #{hv.name} #{hv.uri} failed to connect"
     next

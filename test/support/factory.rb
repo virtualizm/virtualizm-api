@@ -85,7 +85,9 @@ class Factory
     end
 
     Libvirt::Connection.stub(:new, conn_struct) do
-      Hypervisor.new(id: id, name: name, uri: uri, ws_endpoint: ws_endpoint)
+      hv = Hypervisor.new(id: id, name: name, uri: uri, ws_endpoint: ws_endpoint)
+      hv.try_connect
+      hv
     end
   end
 
@@ -145,7 +147,8 @@ class Factory
         get_state: [:RUNNING, :BOOTED],
         _metadata: '<tags></tags>',
         _memory: { value: '512', unit: 'MB' },
-        _vcpu: 1
+        _vcpu: 1,
+        persistent?: true
     }
   end
 

@@ -7,13 +7,25 @@ class EventCable < BaseCable
   STREAM_NAME = 'event'
 
   def self.vm_attributes(vm)
-    { state: vm.state, tags: vm.tags }
+    { state: vm.state, tags: vm.tags, is_persistent: vm.is_persistent }
+  end
+
+  def self.create_virtual_machine(vm)
+    logger&.info(name) { "broadcast create_virtual_machine vm=#{vm.id}" }
+    payload = { id: vm.id, hypervisor_id: vm.hypervisor.id }
+    broadcast(type: 'create_virtual_machine', payload: payload)
   end
 
   def self.update_virtual_machine(vm)
     logger&.info(name) { "broadcast update_virtual_machine vm=#{vm.id}" }
     payload = { id: vm.id, hypervisor_id: vm.hypervisor.id, attributes: vm_attributes(vm) }
     broadcast(type: 'update_virtual_machine', payload: payload)
+  end
+
+  def self.destroy_virtual_machine(vm)
+    logger&.info(name) { "broadcast destroy_virtual_machine vm=#{vm.id}" }
+    payload = { id: vm.id, hypervisor_id: vm.hypervisor.id }
+    broadcast(type: 'destroy_virtual_machine', payload: payload)
   end
 
   def self.broadcast(data)

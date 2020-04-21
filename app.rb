@@ -21,8 +21,15 @@ AsyncCable.config.logger = Libvirt.logger
 Application.add_server :events, AsyncCable::Server.new(connection_class: EventCable)
 
 Hypervisor.all.each do |hv|
-  hv.on_vm_change do |_hv, vm|
-    EventCable.update_virtual_machine(vm)
+  hv.on_vm_change do |action, vm|
+    case action
+    when :create
+      EventCable.create_virtual_machine(vm)
+    when :update
+      EventCable.update_virtual_machine(vm)
+    when :destroy
+      EventCable.destroy_virtual_machine(vm)
+    end
   end
 end
 

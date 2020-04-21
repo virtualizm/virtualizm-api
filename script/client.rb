@@ -8,13 +8,13 @@ rescue LoadError => e
   raise e
 end
 
-gemfile(true, ui: Bundler::UI::Silent.new) do
-  source 'https://rubygems.org'
-
-  gem 'httparty'
-  gem 'websocket-client-simple'
-  gem 'activesupport'
-end
+# gemfile(true, ui: Bundler::UI::Silent.new) do
+#   source 'https://rubygems.org'
+#
+#   gem 'httparty'
+#   gem 'websocket-client-simple'
+#   gem 'activesupport'
+# end
 
 require 'httparty'
 require 'websocket-client-simple'
@@ -76,7 +76,7 @@ cookies = cookies.join('') if cookies.is_a?(Array)
 
 auth_headers = { Cookie: cookies }
 
-query = { fields: { 'virtual-machines': 'name,state,tags' } }
+query = { fields: { 'virtual-machines': 'name,state,tags,xml' } }
 resp_code, resp_body = JsonApiClient.get("#{base_path}/virtual-machines?#{query.to_query}", headers: auth_headers)
 puts "Response #{resp_code}", JSON.pretty_generate(resp_body)
 
@@ -92,6 +92,8 @@ resp_code, resp_body = JsonApiClient.patch(
     "#{base_path}/virtual-machines/#{vm_id}?#{query.to_query}", body: payload, headers: auth_headers
 )
 puts "Response #{resp_code}", JSON.pretty_generate(resp_body)
+
+File.write('./transient.xml', resp_body[:data][:attributes][:xml])
 
 # ws_headers = { 'Cookie': cookies }
 # received = []
