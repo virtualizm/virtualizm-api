@@ -13,6 +13,7 @@ rescue StandardError => e
   end
 end
 
+STDOUT.sync = true
 Libvirt.logger = Logger.new(STDOUT)
 Libvirt.logger.level = ENV['DEBUG'] ? :debug : :info
 
