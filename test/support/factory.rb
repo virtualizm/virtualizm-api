@@ -79,6 +79,10 @@ class Factory
         []
       end
 
+      def list_all_storage_pools
+        []
+      end
+
       def open
         true
       end

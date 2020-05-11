@@ -77,6 +77,12 @@ Application.app = Rack::Builder.new do
       put '/virtual-machines/:id', [VirtualMachinesController, :update]
       patch '/virtual-machines/:id', [VirtualMachinesController, :update]
 
+      get '/storage-pools', [StoragePoolsController, :index]
+      get '/storage-pools/:id', [StoragePoolsController, :show]
+
+      get '/storage-volumes', [StorageVolumesController, :index]
+      get '/storage-volumes/:id', [StorageVolumesController, :show]
+
       get '/spice/:id', [SpiceController, :show]
     end
   end

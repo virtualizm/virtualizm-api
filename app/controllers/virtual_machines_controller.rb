@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 require_relative 'json_api_controller'
-require_relative '../resources/virtual_machine_resource'
 
 class VirtualMachinesController < JsonApiController
-  self.resource_class = VirtualMachineResource
+  self.resource_class_name = 'VirtualMachineResource'
 
   before_action :authenticate_current_user!
 

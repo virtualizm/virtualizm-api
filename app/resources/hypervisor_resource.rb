@@ -24,6 +24,22 @@ class HypervisorResource < BaseResource
 
     attribute(:connected) { @object.connected? }
 
+    has_many :'virtual-machines' do
+      data { @object.virtual_machines }
+
+      link(:self) do
+        "/api/hypervisors/#{@object.id}/virtual-machines"
+      end
+    end
+
+    has_many :'storage-pools' do
+      data { @object.storage_pools }
+
+      link(:self) do
+        "/api/hypervisors/#{@object.id}/storage-pools"
+      end
+    end
+
     link(:self) do
       "/api/hypervisors/#{@object.id}"
     end

@@ -34,7 +34,8 @@ class Hypervisor
               :uri,
               :ws_endpoint,
               :virtual_machines,
-              :connection
+              :connection,
+              :storage_pools
 
   attr_accessor :version,
                 :libversion,
@@ -61,6 +62,8 @@ class Hypervisor
     @on_close = []
     @on_open = []
     @on_vm_change = []
+    @virtual_machines = []
+    @storage_pools = []
 
     # force connect to initialize events callbacks
     set_connection
@@ -129,6 +132,7 @@ class Hypervisor
     register_dom_event_callbacks
     register_close_callback
     load_virtual_machines
+    load_storage_pools
     @on_open.each { |cb| cb.call(self) }
   rescue StandardError => e
     log_error(e)
@@ -163,13 +167,28 @@ class Hypervisor
     info { "#{hv_info} connection was closed (#{reason}). Retry is scheduled." }
     @on_close.each { |cb| cb.call(self) }
     @virtual_machines = []
+    @storage_pools = []
     try_connect
   end
 
   def load_virtual_machines
     dbg { "#{hv_info}, uri=#{uri}" }
-    @virtual_machines = connection.list_all_domains.map { |vm| VirtualMachine.new(domain: vm, hypervisor: self) }
+
+    @virtual_machines = connection.list_all_domains.map do |vm|
+      VirtualMachine.new(domain: vm, hypervisor: self)
+    end
+
     dbg { "loaded size=#{virtual_machines.size} #{hv_info}, uri=#{uri}" }
+  end
+
+  def load_storage_pools
+    dbg { hv_info }
+
+    @storage_pools = connection.list_all_storage_pools.map do |sp|
+      StoragePool.new(sp, hypervisor: self)
+    end
+
+    dbg { "loaded size=#{storage_pools.size} #{hv_info}, uri=#{uri}" }
   end
 
   def _open_connection

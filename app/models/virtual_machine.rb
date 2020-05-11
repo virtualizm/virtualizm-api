@@ -26,7 +26,7 @@ class VirtualMachine
 
   class << self
     def all
-      Hypervisor.all.select(&:connected?).map(&:virtual_machines).flatten
+      Hypervisor.all.map(&:virtual_machines).flatten
     end
 
     def find_by(id:)
@@ -81,6 +81,21 @@ class VirtualMachine
 
   def sync_persistent
     self.is_persistent = domain.persistent?
+  end
+
+  def volume_disks
+    xml_data.device_disks.select { |disk| disk.type == 'volume' }
+  end
+
+  def storage_volumes
+    volume_disks.map do |disk|
+      disk_pool = hypervisor.storage_pools.detect { |pool| pool.name == disk.source.pool }
+      disk_pool.volumes.detect { |volume| volume.name == disk.source.volume }
+    end
+  end
+
+  def storage_pools
+    storage_volumes.map(&:pool)
   end
 
   # @param [String,Symbol]

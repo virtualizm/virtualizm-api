@@ -24,6 +24,22 @@ class VirtualMachineResource < BaseResource
       end
     end
 
+    has_many :'storage-pools' do
+      data { @object.storage_pools }
+
+      link(:self) do
+        "/api/virtual-machines/#{@object.id}/storage-pools"
+      end
+    end
+
+    has_many :'storage-volumes' do
+      data { @object.storage_volumes }
+
+      link(:self) do
+        "/api/virtual-machines/#{@object.id}/storage-volumes"
+      end
+    end
+
     link(:self) do
       "/api/virtual-machines/#{@object.id}"
     end
@@ -50,10 +66,6 @@ class VirtualMachineResource < BaseResource
       raise JSONAPI::Errors::NotFound, key if object.nil?
 
       object
-    end
-
-    def render_classes
-      super.merge HypervisorResource.render_classes
     end
 
     def update(object, attrs, _options)

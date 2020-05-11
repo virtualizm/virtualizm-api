@@ -68,6 +68,14 @@ class TestHypervisors < RequestTestCase
                                  capabilities: hv.capabilities,
                                  connected: true
                              },
+                             relationships: {
+                                 'virtual-machines': {
+                                     links: { self: "/api/hypervisors/#{hv.id}/virtual-machines" }
+                                 },
+                                 'storage-pools': {
+                                     links: { self: "/api/hypervisors/#{hv.id}/storage-pools" }
+                                 }
+                             },
                              links: { self: "/api/hypervisors/#{hv.id}" }
                          }
                      ]
@@ -169,6 +177,14 @@ class TestHypervisors < RequestTestCase
                              free_memory: hv.free_memory,
                              capabilities: hv.capabilities,
                              connected: true
+                         },
+                         relationships: {
+                             'virtual-machines': {
+                                 links: { self: "/api/hypervisors/#{hv.id}/virtual-machines" }
+                             },
+                             'storage-pools': {
+                                 links: { self: "/api/hypervisors/#{hv.id}/storage-pools" }
+                             }
                          },
                          links: { self: "/api/hypervisors/#{hv.id}" }
                      }
