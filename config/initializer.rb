@@ -68,5 +68,8 @@ Hypervisor.all.each do |hv|
   hv.virtual_machines.each do |vm|
     Application.logger.info ">> VM #{vm.id} #{vm.name} retrieved"
   end
+  hv.storage_pools.each do |pool|
+    Application.logger.info ">> SP #{pool.uuid} #{pool.name} (type #{pool.type}) (volumes #{pool.volumes.size}) retrieved"
+  end
 end
 Application.logger.info 'OK.'

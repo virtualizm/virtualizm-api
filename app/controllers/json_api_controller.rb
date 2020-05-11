@@ -7,7 +7,14 @@ class JsonApiController < BaseController
   rescue_from StandardError, with: :json_api_exception
 
   class_attribute :renderer, instance_writer: false, default: JSONAPI::Serializable::Renderer.new
-  class_attribute :resource_class, instance_writer: false
+  class_attribute :resource_class_name, instance_writer: false
+  delegate :resource_class, to: :class
+
+  class << self
+    def resource_class
+      @resource_class ||= resource_class_name.constantize
+    end
+  end
 
   include Concerns::UserAuthentication
 

@@ -73,6 +73,12 @@ class TestVirtualMachines < RequestTestCase
                                  hypervisor: {
                                      links: { self: "/api/hypervisors/#{hv.id}" },
                                      data: { type: 'hypervisors', id: hv.id.to_s }
+                                 },
+                                 'storage-pools': {
+                                     links: { self: "/api/virtual-machines/#{vms.first.id}/storage-pools" }
+                                 },
+                                 'storage-volumes': {
+                                     links: { self: "/api/virtual-machines/#{vms.first.id}/storage-volumes" }
                                  }
                              },
                              links: { self: "/api/virtual-machines/#{vms.first.id}" }
@@ -95,6 +101,12 @@ class TestVirtualMachines < RequestTestCase
                                  hypervisor: {
                                      links: { self: "/api/hypervisors/#{hv.id}" },
                                      data: { type: 'hypervisors', id: hv.id.to_s }
+                                 },
+                                 'storage-pools': {
+                                     links: { self: "/api/virtual-machines/#{vms.second.id}/storage-pools" }
+                                 },
+                                 'storage-volumes': {
+                                     links: { self: "/api/virtual-machines/#{vms.second.id}/storage-volumes" }
                                  }
                              },
                              links: { self: "/api/virtual-machines/#{vms.second.id}" }
@@ -161,6 +173,12 @@ class TestVirtualMachines < RequestTestCase
                                  hypervisor: {
                                      links: { self: "/api/hypervisors/#{hv.id}" },
                                      data: { type: 'hypervisors', id: hv.id.to_s }
+                                 },
+                                 'storage-pools': {
+                                     links: { self: "/api/virtual-machines/#{vms.first.id}/storage-pools" }
+                                 },
+                                 'storage-volumes': {
+                                     links: { self: "/api/virtual-machines/#{vms.first.id}/storage-volumes" }
                                  }
                              },
                              links: { self: "/api/virtual-machines/#{vms.first.id}" }
@@ -183,6 +201,12 @@ class TestVirtualMachines < RequestTestCase
                                  hypervisor: {
                                      links: { self: "/api/hypervisors/#{hv.id}" },
                                      data: { type: 'hypervisors', id: hv.id.to_s }
+                                 },
+                                 'storage-pools': {
+                                     links: { self: "/api/virtual-machines/#{vms.second.id}/storage-pools" }
+                                 },
+                                 'storage-volumes': {
+                                     links: { self: "/api/virtual-machines/#{vms.second.id}/storage-volumes" }
                                  }
                              },
                              links: { self: "/api/virtual-machines/#{vms.second.id}" }
@@ -209,6 +233,14 @@ class TestVirtualMachines < RequestTestCase
                                  free_memory: hv.free_memory,
                                  capabilities: hv.capabilities,
                                  connected: true
+                             },
+                             relationships: {
+                                 'virtual-machines': {
+                                     links: { self: "/api/hypervisors/#{hv.id}/virtual-machines" }
+                                 },
+                                 'storage-pools': {
+                                     links: { self: "/api/hypervisors/#{hv.id}/storage-pools" }
+                                 }
                              },
                              links: { self: "/api/hypervisors/#{hv.id}" }
                          }
@@ -287,6 +319,12 @@ class TestVirtualMachines < RequestTestCase
                              hypervisor: {
                                  links: { self: "/api/hypervisors/#{hv.id}" },
                                  data: { type: 'hypervisors', id: hv.id.to_s }
+                             },
+                             'storage-pools': {
+                                 links: { self: "/api/virtual-machines/#{vm.id}/storage-pools" }
+                             },
+                             'storage-volumes': {
+                                 links: { self: "/api/virtual-machines/#{vm.id}/storage-volumes" }
                              }
                          },
                          links: { self: "/api/virtual-machines/#{vm.id}" }
@@ -320,6 +358,12 @@ class TestVirtualMachines < RequestTestCase
                              hypervisor: {
                                  links: { self: "/api/hypervisors/#{hv.id}" },
                                  data: { type: 'hypervisors', id: hv.id.to_s }
+                             },
+                             'storage-pools': {
+                                 links: { self: "/api/virtual-machines/#{vm.id}/storage-pools" }
+                             },
+                             'storage-volumes': {
+                                 links: { self: "/api/virtual-machines/#{vm.id}/storage-volumes" }
                              }
                          },
                          links: { self: "/api/virtual-machines/#{vm.id}" }
@@ -345,6 +389,14 @@ class TestVirtualMachines < RequestTestCase
                                  free_memory: hv.free_memory,
                                  capabilities: hv.capabilities,
                                  connected: true
+                             },
+                             relationships: {
+                                 'virtual-machines': {
+                                     links: { self: "/api/hypervisors/#{hv.id}/virtual-machines" }
+                                 },
+                                 'storage-pools': {
+                                     links: { self: "/api/hypervisors/#{hv.id}/storage-pools" }
+                                 }
                              },
                              links: { self: "/api/hypervisors/#{hv.id}" }
                          }
@@ -378,6 +430,12 @@ class TestVirtualMachines < RequestTestCase
                              hypervisor: {
                                  links: { self: "/api/hypervisors/#{hv.id}" },
                                  data: { type: 'hypervisors', id: hv.id.to_s }
+                             },
+                             'storage-pools': {
+                                 links: { self: "/api/virtual-machines/#{vm.id}/storage-pools" }
+                             },
+                             'storage-volumes': {
+                                 links: { self: "/api/virtual-machines/#{vm.id}/storage-volumes" }
                              }
                          },
                          links: { self: "/api/virtual-machines/#{vm.id}" }
@@ -511,6 +569,12 @@ class TestVirtualMachines < RequestTestCase
                              hypervisor: {
                                  links: { self: "/api/hypervisors/#{hv.id}" },
                                  data: { type: 'hypervisors', id: hv.id.to_s }
+                             },
+                             'storage-pools': {
+                                 links: { self: "/api/virtual-machines/#{vm.id}/storage-pools" }
+                             },
+                             'storage-volumes': {
+                                 links: { self: "/api/virtual-machines/#{vm.id}/storage-volumes" }
                              }
                          },
                          links: { self: "/api/virtual-machines/#{vm.id}" }
@@ -550,6 +614,12 @@ class TestVirtualMachines < RequestTestCase
                              hypervisor: {
                                  links: { self: "/api/hypervisors/#{hv.id}" },
                                  data: { type: 'hypervisors', id: hv.id.to_s }
+                             },
+                             'storage-pools': {
+                                 links: { self: "/api/virtual-machines/#{vm.id}/storage-pools" }
+                             },
+                             'storage-volumes': {
+                                 links: { self: "/api/virtual-machines/#{vm.id}/storage-volumes" }
                              }
                          },
                          links: { self: "/api/virtual-machines/#{vm.id}" }

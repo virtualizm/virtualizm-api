@@ -117,7 +117,13 @@ class BaseResource
     end
 
     def render_classes
-      { _object_class.name.to_sym => self::Serializable }
+      {
+          User: SessionResource::Serializable,
+          Hypervisor: HypervisorResource::Serializable,
+          VirtualMachine: VirtualMachineResource::Serializable,
+          StoragePool: StoragePoolResource::Serializable,
+          StorageVolume: StorageVolumeResource::Serializable
+      }
     end
 
     def top_level_meta(_type, _options)
