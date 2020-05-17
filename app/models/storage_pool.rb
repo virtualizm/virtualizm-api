@@ -33,7 +33,7 @@ class StoragePool
 
   def virtual_machines
     hypervisor.virtual_machines.select do |vm|
-      vm.volume_disks.any? { |disk| disk.source.pool == name }
+      vm.volume_disks.any? { |disk| disk.source_pool == name }
     end
   end
 

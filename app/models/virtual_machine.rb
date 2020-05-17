@@ -89,8 +89,8 @@ class VirtualMachine
 
   def storage_volumes
     volume_disks.map do |disk|
-      disk_pool = hypervisor.storage_pools.detect { |pool| pool.name == disk.source.pool }
-      disk_pool.volumes.detect { |volume| volume.name == disk.source.volume }
+      disk_pool = hypervisor.storage_pools.detect { |pool| pool.name == disk.source_pool }
+      disk_pool.volumes.detect { |volume| volume.name == disk.source_volume }
     end
   end
 

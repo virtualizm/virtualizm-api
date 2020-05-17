@@ -6,7 +6,16 @@ class StorageVolumeResource < BaseResource
   class Serializable < JSONAPI::Serializable::Resource
     type :'storage-volumes'
 
-    attributes
+    attributes :capacity,
+               :allocation,
+               :xml,
+               :name,
+               :key,
+               :physical,
+               :target_path,
+               :target_format
+
+    attribute(:volume_type) { @object.type }
 
     has_one :pool do
       linkage always: true
