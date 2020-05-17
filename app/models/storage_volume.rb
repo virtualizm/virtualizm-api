@@ -44,7 +44,7 @@ class StorageVolume
   def virtual_machines
     hypervisor.virtual_machines.select do |vm|
       vm.volume_disks.any? do |disk|
-        disk.source.pool == pool.name && disk.source.volume == name
+        disk.source_pool == pool.name && disk.source_volume == name
       end
     end
   end
