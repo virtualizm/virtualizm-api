@@ -19,7 +19,9 @@ class ApplicationConfig < Anyway::Config
               :serve_static,
               :cookie_name,
               :logger,
-              :reconnect_timeout
+              :reconnect_timeout,
+              :keep_alive_interval,
+              :keep_alive_count
 
   attrs_from_file :users,
                   :clusters,
