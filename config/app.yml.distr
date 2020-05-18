@@ -11,7 +11,7 @@ users:
 cookie_secret: 0665b089efe587e560fc79c4218ac6e43181e9076a582905dbb991f05c6785ab133fee05d0f28d292b908dab09a3200d1eedb6aebcdcd77ed49bbbba4aeef5ce
 cookie_params:
   same_site: 'None'
-  secure: true
+#  secure: true
 #  path: '/'
 #  domain:
 #  expire_after:
@@ -25,3 +25,7 @@ cookie_params:
 libvirt_rw: true
 serve_static: true
 reconnect_timeout: 5
+# https://libvirt.org/html/libvirt-libvirt-host.html#virConnectSetKeepAlive
+# optional
+keep_alive_interval: 3
+keep_alive_count: 2

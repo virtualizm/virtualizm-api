@@ -86,6 +86,10 @@ class Factory
       def open
         true
       end
+
+      def set_keep_alive(_interval, _count)
+        nil
+      end
     end
 
     Libvirt::Connection.stub(:new, conn_struct) do

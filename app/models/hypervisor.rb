@@ -193,7 +193,11 @@ class Hypervisor
 
   def _open_connection
     connection.open
-    # c.set_keep_alive(10, 2)
+
+    interval = Application.config.keep_alive_interval
+    count = Application.config.keep_alive_count
+    connection.set_keep_alive(interval, count) if interval && count
+
     dbg { "Connected #{hv_info}, uri=#{uri}" }
     @is_connected = true
   rescue Libvirt::Errors::Error => e
