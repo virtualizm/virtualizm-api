@@ -76,7 +76,6 @@ GEM
       multi_xml (>= 0.5.2)
     i18n (1.8.2)
       concurrent-ruby (~> 1.0)
-    jaro_winkler (1.5.4)
     jsonapi-deserializable (0.2.0)
     jsonapi-rb (0.5.0)
       jsonapi-deserializable (~> 0.2.0)
@@ -143,8 +142,7 @@ GEM
       msgpack (>= 0.4.3)
       optimist (>= 3.0.0)
     rexml (3.2.4)
-    rubocop (0.82.0)
-      jaro_winkler (~> 1.5.1)
+    rubocop (0.83.0)
       parallel (~> 1.10)
       parser (>= 2.7.0.1)
       rainbow (>= 2.2.2, < 4.0)
@@ -194,7 +192,7 @@ DEPENDENCIES
   rack_router (>= 0.1.2)
   rake
   rbtrace
-  rubocop (~> 0.82.0)
+  rubocop (~> 0.83.0)
   websocket-client-simple
 
 BUNDLED WITH
