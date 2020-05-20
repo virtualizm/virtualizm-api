@@ -106,7 +106,7 @@ GEM
     nokogiri (1.10.9)
       mini_portile2 (~> 2.4.0)
     null-logger (0.1.5)
-    optimist (3.0.0)
+    optimist (3.0.1)
     parallel (1.19.1)
     parser (2.7.1.2)
       ast (~> 2.4.0)
@@ -138,7 +138,7 @@ GEM
       rack
     rainbow (3.0.0)
     rake (13.0.1)
-    rbtrace (0.4.12)
+    rbtrace (0.4.13)
       ffi (>= 1.0.6)
       msgpack (>= 0.4.3)
       optimist (>= 3.0.0)
