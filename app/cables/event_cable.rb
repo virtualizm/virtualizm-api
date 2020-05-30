@@ -6,30 +6,54 @@ class EventCable < BaseCable
   identified_as :event
   STREAM_NAME = 'event'
 
-  def self.vm_attributes(vm)
-    { state: vm.state, tags: vm.tags, is_persistent: vm.is_persistent }
-  end
+  class << self
+    def vm_attributes(vm)
+      { state: vm.state, tags: vm.tags, is_persistent: vm.is_persistent }
+    end
 
-  def self.create_virtual_machine(vm)
-    logger&.info(name) { "broadcast create_virtual_machine vm=#{vm.id}" }
-    payload = { id: vm.id, hypervisor_id: vm.hypervisor.id }
-    broadcast(type: 'create_virtual_machine', payload: payload)
-  end
+    def pool_attributes(pool)
+      { state: pool.state }
+    end
 
-  def self.update_virtual_machine(vm)
-    logger&.info(name) { "broadcast update_virtual_machine vm=#{vm.id}" }
-    payload = { id: vm.id, hypervisor_id: vm.hypervisor.id, attributes: vm_attributes(vm) }
-    broadcast(type: 'update_virtual_machine', payload: payload)
-  end
+    def create_virtual_machine(vm)
+      logger&.info(name) { "broadcast create_virtual_machine vm=#{vm.id}" }
+      payload = { id: vm.id, hypervisor_id: vm.hypervisor.id }
+      broadcast(type: 'create_virtual_machine', payload: payload)
+    end
 
-  def self.destroy_virtual_machine(vm)
-    logger&.info(name) { "broadcast destroy_virtual_machine vm=#{vm.id}" }
-    payload = { id: vm.id, hypervisor_id: vm.hypervisor.id }
-    broadcast(type: 'destroy_virtual_machine', payload: payload)
-  end
+    def update_virtual_machine(vm)
+      logger&.info(name) { "broadcast update_virtual_machine vm=#{vm.id}" }
+      payload = { id: vm.id, hypervisor_id: vm.hypervisor.id, attributes: vm_attributes(vm) }
+      broadcast(type: 'update_virtual_machine', payload: payload)
+    end
 
-  def self.broadcast(data)
-    super(STREAM_NAME, data)
+    def destroy_virtual_machine(vm)
+      logger&.info(name) { "broadcast destroy_virtual_machine vm=#{vm.id}" }
+      payload = { id: vm.id, hypervisor_id: vm.hypervisor.id }
+      broadcast(type: 'destroy_virtual_machine', payload: payload)
+    end
+
+    def create_storage_pool(pool)
+      logger&.info(name) { "broadcast create_storage_pool pool=#{pool.uuid}, pool.name=#{pool.name}" }
+      payload = { id: pool.uuid, hypervisor_id: pool.hypervisor.id }
+      broadcast(type: 'create_storage_pool', payload: payload)
+    end
+
+    def update_storage_pool(pool)
+      logger&.info(name) { "broadcast update_storage_pool pool=#{pool.uuid}, pool.name=#{pool.name}" }
+      payload = { id: pool.uuid, hypervisor_id: pool.hypervisor.id, attributes: pool_attributes(pool) }
+      broadcast(type: 'update_storage_pool', payload: payload)
+    end
+
+    def destroy_storage_pool(pool)
+      logger&.info(name) { "broadcast destroy_storage_pool pool=#{pool.uuid}, pool.name=#{pool.name}" }
+      payload = { id: pool.uuid, hypervisor_id: pool.hypervisor.id }
+      broadcast(type: 'destroy_storage_pool', payload: payload)
+    end
+
+    def broadcast(data)
+      super(STREAM_NAME, data)
+    end
   end
 
   def on_open
