@@ -32,6 +32,17 @@ Hypervisor.all.each do |hv|
       EventCable.destroy_virtual_machine(vm)
     end
   end
+
+  hv.on_pool_change do |action, pool|
+    case action
+    when :create
+      EventCable.create_storage_pool(pool)
+    when :update
+      EventCable.update_storage_pool(pool)
+    when :destroy
+      EventCable.destroy_storage_pool(pool)
+    end
+  end
 end
 
 # build application server

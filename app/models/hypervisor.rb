@@ -62,6 +62,7 @@ class Hypervisor
     @on_close = []
     @on_open = []
     @on_vm_change = []
+    @on_pool_change = []
     @virtual_machines = []
     @storage_pools = []
 
@@ -100,6 +101,10 @@ class Hypervisor
   # @yieldparam vm [VirtualMachine]
   def on_vm_change(&block)
     @on_vm_change.push(block)
+  end
+
+  def on_pool_change(&block)
+    @on_pool_change.push(block)
   end
 
   def connected?
@@ -234,6 +239,46 @@ class Hypervisor
         :METADATA_CHANGE,
         &method(:dom_event_callback_metadata_change)
     )
+
+    connection.register_storage_pool_event_callback(
+        :LIFECYCLE,
+        &method(:storage_event_callback_lifecycle)
+    )
+
+    connection.register_storage_pool_event_callback(
+        :REFRESH,
+        &method(:storage_event_callback_refresh)
+    )
+  end
+
+  def storage_event_callback_lifecycle(_conn, pool, event, detail, _opaque)
+    dbg { "STORAGE POOL EVENT LIFECYCLE #{hv_info}, #{pool_info(pool)}, event=#{event}, detail=#{detail}" }
+    sp = storage_pools.detect { |r| r.uuid == pool.uuid }
+    if sp.nil?
+      sp = StoragePool.new(pool, hypervisor: self)
+      dbg { "STORAGE POOL ADDED #{hv_info}, #{pool_info(pool)}" }
+      storage_pools << sp
+      pool_changed(:create, sp)
+      return
+    end
+
+    if event == :UNDEFINED
+      dbg { "STORAGE POOL REMOVED #{hv_info}, #{pool_info(pool)}" }
+      storage_pools.delete(sp)
+      sp.state = event.to_s.downcase
+      sp.volumes = []
+      pool_changed(:destroy, sp)
+      return
+    end
+
+    dbg { "STORAGE POOL CHANGED #{hv_info}, #{pool_info(pool)}" }
+    sp.sync_state
+    pool_changed(:update, sp)
+  end
+
+  def storage_event_callback_refresh(_conn, pool, _opaque)
+    dbg { "STORAGE POOL EVENT REFRESH #{hv_info}, #{pool_info(pool)}" }
+    # do nothing for now.
   end
 
   # Libvirt::Connect::DOMAIN_EVENT_ID_LIFECYCLE
@@ -243,20 +288,21 @@ class Hypervisor
 
     if vm.nil?
       vm = VirtualMachine.new(domain: dom, hypervisor: self)
-      dbg { "DOMAIN ADD #{hv_info}, #{dom_info(dom)}" }
+      dbg { "DOMAIN ADDED #{hv_info}, #{dom_info(dom)}" }
       virtual_machines << vm
       vm_changed(:create, vm)
       return
     end
 
     if event == :UNDEFINED || (event == :STOPPED && !vm.is_persistent)
-      dbg { "DOMAIN REMOVE #{hv_info}, #{dom_info(dom)}" }
+      dbg { "DOMAIN REMOVED #{hv_info}, #{dom_info(dom)}" }
       virtual_machines.delete(vm)
       vm.state = event.to_s.downcase
       vm_changed(:destroy, vm)
       return
     end
 
+    dbg { "DOMAIN CHANGED #{hv_info}, #{dom_info(dom)}" }
     vm.sync_state
     vm.sync_persistent
     vm_changed(:update, vm)
@@ -282,6 +328,12 @@ class Hypervisor
     end
   end
 
+  def pool_changed(action, pool)
+    @on_pool_change.each do |block|
+      Async.run_new { block.call(action, pool) }
+    end
+  end
+
   def hv_info
     "hv.id=#{id}, hv.name=#{name}"
   end
@@ -291,5 +343,9 @@ class Hypervisor
   rescue Libvirt::Errors::LibError => _e
     # when domain already deleted we can't check if it's persisted or not
     "dom.id=#{dom.uuid}, dom.name=#{dom.name}"
+  end
+
+  def pool_info(pool)
+    "pool.id=#{pool.uuid}, pool.name=#{pool.name}"
   end
 end

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class StoragePool
+  include ::Loggable
+
   class << self
     def all
       Hypervisor.all.map(&:storage_pools).flatten
@@ -13,8 +15,6 @@ class StoragePool
 
   attr_reader :pool,
               :hypervisor,
-              :volumes,
-              :state,
               :capacity,
               :allocation,
               :available,
@@ -25,10 +25,13 @@ class StoragePool
               :type,
               :target_path
 
+  attr_accessor :state, :volumes
+
   def initialize(pool, hypervisor:)
     @pool = pool
     @hypervisor = hypervisor
     setup_attributes
+    sync_state
   end
 
   def virtual_machines
@@ -37,11 +40,20 @@ class StoragePool
     end
   end
 
+  def sync_state
+    self.state = pool.info.state.to_s.downcase
+    # If pool is not running we can't retrieve it's volumes.
+    self.volumes = running? ? retrieve_volumes : []
+  end
+
+  def running?
+    state == 'running'
+  end
+
   private
 
   def setup_attributes
     info = pool.info
-    @state = info.state.to_s.downcase
     @capacity = info.capacity
     @allocation = info.allocation
     @available = info.available
@@ -52,12 +64,14 @@ class StoragePool
     @name = xml_data.name
     @type = xml_data.type
     @target_path = xml_data.target_path
+  end
 
-    # A volume.name is unique per storage pool,
-    # but it's not url safe.
-    # So we define globally unique id of volume
-    # as pool.uuid and volume index in pool array
-    @volumes = pool.list_all_volumes.map.with_index do |vol, index|
+  # A volume.name is unique per storage pool,
+  # but it's not url safe.
+  # So we define globally unique id of volume
+  # as pool.uuid and volume index in pool array
+  def retrieve_volumes
+    pool.list_all_volumes.map.with_index do |vol, index|
       id = "#{uuid}--#{index}"
       StorageVolume.new(vol, pool: self, id: id)
     end
