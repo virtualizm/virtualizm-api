@@ -148,9 +148,10 @@ class Hypervisor
   private
 
   def set_connection
-    dbg { "Opening RW connection to #{hv_info}, uri=#{uri}" }
+    dbg { "creating Libvirt::Connection to #{hv_info}, uri=#{uri}" }
     @connection = Libvirt::Connection.new(uri)
     @is_connected = false
+    dbg { "created #{hv_info}, uri=#{uri}" }
   rescue StandardError => e
     log_error(e)
   end
@@ -165,45 +166,63 @@ class Hypervisor
   end
 
   def register_close_callback
-    connection.register_close_callback { |_c, reason, _op| when_closed(reason) }
+    dbg { "registering close callback #{hv_info}" }
+    result = connection.register_close_callback { |_c, reason, _op| when_closed(reason) }
+    dbg { "registered close callback #{hv_info}" }
+    result
   end
 
   def when_closed(reason)
     info { "#{hv_info} connection was closed (#{reason}). Retry is scheduled." }
+
+    dbg { "calling on_close size=#{@on_close.size} #{hv_info}" }
     @on_close.each { |cb| cb.call(self) }
+    dbg { "called on_close size=#{@on_close.size} #{hv_info}" }
+
     @virtual_machines = []
     @storage_pools = []
     try_connect
   end
 
   def load_virtual_machines
-    dbg { "#{hv_info}, uri=#{uri}" }
+    dbg { "loading #{hv_info}" }
 
-    @virtual_machines = connection.list_all_domains.map do |vm|
+    domains = connection.list_all_domains
+    dbg { "loaded size=#{domains.size} #{hv_info}" }
+
+    @virtual_machines = domains.map do |vm|
       VirtualMachine.new(domain: vm, hypervisor: self)
     end
 
-    dbg { "loaded size=#{virtual_machines.size} #{hv_info}, uri=#{uri}" }
+    dbg { "initialized size=#{virtual_machines.size} #{hv_info}" }
   end
 
   def load_storage_pools
-    dbg { hv_info }
+    dbg { "loading #{hv_info}" }
 
-    @storage_pools = connection.list_all_storage_pools.map do |sp|
+    pools = connection.list_all_storage_pools
+    dbg { "loaded size=#{pools.size} #{hv_info}" }
+
+    @storage_pools = pools.map do |sp|
       StoragePool.new(sp, hypervisor: self)
     end
 
-    dbg { "loaded size=#{storage_pools.size} #{hv_info}, uri=#{uri}" }
+    dbg { "initialized size=#{storage_pools.size} #{hv_info}" }
   end
 
   def _open_connection
+    dbg { "connecting #{hv_info}, uri=#{uri}" }
+
     connection.open
+    dbg { "connected #{hv_info}, uri=#{uri}" }
 
     interval = Application.config.keep_alive_interval
     count = Application.config.keep_alive_count
-    connection.set_keep_alive(interval, count) if interval && count
+    if interval && count
+      connection.set_keep_alive(interval, count)
+      dbg { "set keep alive interval=#{interval}, count,#{count} #{hv_info}" }
+    end
 
-    dbg { "Connected #{hv_info}, uri=#{uri}" }
     @is_connected = true
   rescue Libvirt::Errors::Error => e
     dbg { "Failed #{e.message} #{hv_info}, uri=#{uri}" }
@@ -211,11 +230,22 @@ class Hypervisor
   end
 
   def setup_attributes
+    dbg { "setting up #{hv_info}" }
+
     self.version = connection.version
+    dbg { "version set #{hv_info}" }
+
     self.libversion = connection.lib_version
+    dbg { "libversion set #{hv_info}" }
+
     self.hostname = connection.hostname
+    dbg { "hostname set #{hv_info}" }
+
     self.max_vcpus = connection.max_vcpus
+    dbg { "max_vcpus set #{hv_info}" }
+
     self.capabilities = connection.capabilities
+    dbg { "capabilities set #{hv_info}" }
 
     node_info = connection.node_info
     self.cpu_model = node_info.model
@@ -226,29 +256,39 @@ class Hypervisor
     self.cpu_cores = node_info.cores
     self.cpu_threads = node_info.threads
     self.total_memory = Libvirt::Util.parse_memory(node_info.memory, :KiB)
+    dbg { "node_info set #{hv_info}" }
+
     self.free_memory = connection.free_memory
+
+    dbg { "free_memory set #{hv_info}" }
   end
 
   def register_dom_event_callbacks
+    dbg { "started #{hv_info}" }
+
     connection.register_domain_event_callback(
         :LIFECYCLE,
         &method(:dom_event_callback_lifecycle)
     )
+    dbg { "register_domain_event_callback LIFECYCLE registered #{hv_info}" }
 
     connection.register_domain_event_callback(
         :METADATA_CHANGE,
         &method(:dom_event_callback_metadata_change)
     )
+    dbg { "register_domain_event_callback METADATA_CHANGE registered #{hv_info}" }
 
     connection.register_storage_pool_event_callback(
         :LIFECYCLE,
         &method(:storage_event_callback_lifecycle)
     )
+    dbg { "register_storage_pool_event_callback LIFECYCLE registered #{hv_info}" }
 
     connection.register_storage_pool_event_callback(
         :REFRESH,
         &method(:storage_event_callback_refresh)
     )
+    dbg { "register_storage_pool_event_callback REFRESH registered #{hv_info}" }
   end
 
   def storage_event_callback_lifecycle(_conn, pool, event, detail, _opaque)

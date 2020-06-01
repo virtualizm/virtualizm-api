@@ -50,24 +50,34 @@ class VirtualMachine
   end
 
   def setup_attributes
+    dbg { "setting up domain.address=0x#{domain.to_ptr.address.to_s(16)}, #{hv_info}" }
+
     self.xml = domain.xml_desc
+    dbg { "setting up domain.address=0x#{domain.to_ptr.address.to_s(16)}, #{hv_info}" }
     self.xml_data = Libvirt::Xml::Domain.load(xml)
+    dbg { "xml_data domain.address=0x#{domain.to_ptr.address.to_s(16)}, #{hv_info}" }
     self.id = xml_data.uuid
     self.name = xml_data.name
     self.cpus = running? ? xml_data.vcpus.count : xml_data.vcpu.value
     self.memory = xml_data.memory.bytes
     self.graphics = xml_data.device_graphics&.map { |g| g.to_h.reject { |_, v| v.nil? } }
     self.disks = xml_data.device_disks&.map { |d| d.to_h.reject { |_, v| v.nil? } }
+    dbg { "complete #{vm_info}, domain.address=0x#{domain.to_ptr.address.to_s(16)}, #{hv_info}" }
   end
 
   def sync_tags
+    dbg { "syncing #{vm_info}, #{hv_info}" }
+
     xml = domain.get_metadata(
         type: :ELEMENT,
         uri: TAGS_URI,
         flags: :AFFECT_CONFIG
     )
+    dbg { "get_metadata #{vm_info}, #{hv_info}" }
     @tags = TagsXml.load(xml).tags
+    dbg { "parsed #{vm_info}, #{hv_info}" }
   rescue Libvirt::Errors::LibError => _e
+    dbg { "failed to get_metadata #{vm_info}, #{hv_info}" }
     @tags = []
   end
 
@@ -76,11 +86,15 @@ class VirtualMachine
   end
 
   def sync_state
+    dbg { "syncing #{vm_info}, #{hv_info}" }
     self.state = domain.get_state.first.to_s.downcase
+    dbg { "get_state #{vm_info}, #{hv_info}" }
   end
 
   def sync_persistent
+    dbg { "syncing #{vm_info}, #{hv_info}" }
     self.is_persistent = domain.persistent?
+    dbg { "persistent? #{vm_info}, #{hv_info}" }
   end
 
   def volume_disks
@@ -88,10 +102,15 @@ class VirtualMachine
   end
 
   def storage_volumes
-    volume_disks.map do |disk|
+    dbg { "finding #{vm_info}, #{hv_info}" }
+
+    vols = volume_disks.map do |disk|
       disk_pool = hypervisor.storage_pools.detect { |pool| pool.name == disk.source_pool }
       disk_pool.volumes.detect { |volume| volume.name == disk.source_volume }
     end
+    dbg { "found size=#{vols.size} #{vm_info}, #{hv_info}" }
+
+    vols
   end
 
   def storage_pools
@@ -102,6 +121,8 @@ class VirtualMachine
   # @raise [ArgumentError]
   # @raise [Libvirt::Errors::Error]
   def update_state(state)
+    dbg { "updating state=#{state}, #{vm_info}, #{hv_info}" }
+
     case state.to_s.upcase.to_sym
     when :RUNNING
       domain.start
@@ -126,12 +147,17 @@ class VirtualMachine
       raise ArgumentError, "invalid state #{state}"
     end
 
+    dbg { "updated state=#{state} #{vm_info}, #{hv_info}" }
     sync_state
   end
 
   # @param tags [Array<String>]
   def update_tags(tags)
+    dbg { "updating tags=#{tags}, #{vm_info}, #{hv_info}" }
+
     xml = TagsXml.build(tags).to_xml
+    dbg { "build xml tags=#{tags}, #{vm_info}, #{hv_info}" }
+
     domain.set_metadata(
         xml,
         type: :ELEMENT,
@@ -140,6 +166,7 @@ class VirtualMachine
         flags: :AFFECT_CONFIG
     )
 
+    dbg { "set_metadata tags=#{tags}, #{vm_info}, #{hv_info}" }
     sync_tags
   end
 
@@ -169,12 +196,27 @@ class VirtualMachine
   # @yieldparam *args [Array] specific event arguments
   # @yieldparam opaque [Object,NilClass]
   def register_event_callback(event_id, opaque = nil, &block)
-    hypervisor.register_domain_event_callback(
+    dbg { "registering #{vm_info}, #{hv_info}" }
+
+    result = hypervisor.register_domain_event_callback(
         event_id,
         domain,
         opaque,
         &block
     )
+
+    dbg { "registered #{vm_info}, #{hv_info}" }
+    result
+  end
+
+  private
+
+  def vm_info
+    "vm.id=#{id}, vm.name=#{name}"
+  end
+
+  def hv_info
+    "hv.id=#{hypervisor.id}, hv.name=#{hypervisor.name}"
   end
 
   # def start
