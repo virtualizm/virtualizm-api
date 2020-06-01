@@ -75,6 +75,10 @@ class Factory
         nil
       end
 
+      def register_storage_pool_event_callback(_event, _pool = nil, _opaque = nil)
+        nil
+      end
+
       def list_all_domains
         []
       end
@@ -129,6 +133,10 @@ class Factory
     dom_struct = create_struct(attrs) do
       def get_metadata(*_args)
         _metadata
+      end
+
+      def to_ptr
+        Struct.new(:address).new(0)
       end
 
       def set_metadata(*_args); end
