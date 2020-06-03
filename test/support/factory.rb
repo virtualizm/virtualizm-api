@@ -164,7 +164,8 @@ class Factory
         _metadata: '<tags></tags>',
         _memory: { value: '512', unit: 'MB' },
         _vcpu: 1,
-        persistent?: true
+        persistent?: true,
+        auto_start: true
     }
   end
 

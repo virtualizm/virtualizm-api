@@ -14,7 +14,8 @@ class VirtualMachineResource < BaseResource
                :tags,
                :graphics,
                :disks,
-               :is_persistent
+               :is_persistent,
+               :auto_start
 
     has_one :hypervisor do
       linkage always: true
@@ -69,18 +70,11 @@ class VirtualMachineResource < BaseResource
     end
 
     def update(object, attrs, _options)
-      begin
-        object.update_state attrs[:state] if attrs.key?(:state)
-        object.update_tags attrs[:tags] if attrs.key?(:tags)
-      rescue ArgumentError, Libvirt::Errors::Error => e
-        raise JSONAPI::Errors::ValidationError.new(:state, e.message)
-      end
-
-      begin
-        object.update_tags attrs[:tags] if attrs.key?(:tags)
-      rescue ArgumentError, Libvirt::Errors::Error => e
-        raise JSONAPI::Errors::ValidationError.new(:tags, e.message)
-      end
+      object.update_state attrs[:state] if attrs.key?(:state)
+      object.update_tags attrs[:tags] if attrs.key?(:tags)
+      object.update_auto_start attrs[:auto_start] if attrs.key?(:auto_start)
+    rescue ArgumentError, Libvirt::Errors::Error => e
+      raise JSONAPI::Errors::ValidationError.new(:state, e.message)
     end
   end
 end

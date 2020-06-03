@@ -22,7 +22,8 @@ class VirtualMachine
                 :xml_data,
                 :graphics,
                 :disks,
-                :is_persistent
+                :is_persistent,
+                :auto_start
 
   class << self
     def all
@@ -52,8 +53,10 @@ class VirtualMachine
   def setup_attributes
     dbg { "setting up domain.address=0x#{domain.to_ptr.address.to_s(16)}, #{hv_info}" }
 
+    self.auto_start = domain.auto_start
+    dbg { "auto_start domain.address=0x#{domain.to_ptr.address.to_s(16)}, #{hv_info}" }
     self.xml = domain.xml_desc
-    dbg { "setting up domain.address=0x#{domain.to_ptr.address.to_s(16)}, #{hv_info}" }
+    dbg { "xml_desc domain.address=0x#{domain.to_ptr.address.to_s(16)}, #{hv_info}" }
     self.xml_data = Libvirt::Xml::Domain.load(xml)
     dbg { "xml_data domain.address=0x#{domain.to_ptr.address.to_s(16)}, #{hv_info}" }
     self.id = xml_data.uuid
@@ -115,6 +118,17 @@ class VirtualMachine
 
   def storage_pools
     storage_volumes.map(&:pool)
+  end
+
+  # @param flag [Boolean]
+  # @raise [Libvirt::Errors::Error]
+  def update_auto_start(flag)
+    dbg { "updating auto_start=#{flag}, #{vm_info}, #{hv_info}" }
+
+    domain.set_auto_start(flag)
+    self.auto_start = !!flag # rubocop:disable Style/DoubleNegation
+
+    dbg { "updated auto_start=#{flag} #{vm_info}, #{hv_info}" }
   end
 
   # @param [String,Symbol]

@@ -67,7 +67,8 @@ class TestVirtualMachines < RequestTestCase
                                  xml: vms.first.xml,
                                  graphics: [],
                                  disks: [],
-                                 is_persistent: true
+                                 is_persistent: true,
+                                 auto_start: true
                              },
                              relationships: {
                                  hypervisor: {
@@ -95,7 +96,8 @@ class TestVirtualMachines < RequestTestCase
                                  xml: vms.second.xml,
                                  graphics: [],
                                  disks: [],
-                                 is_persistent: true
+                                 is_persistent: true,
+                                 auto_start: true
                              },
                              relationships: {
                                  hypervisor: {
@@ -167,7 +169,8 @@ class TestVirtualMachines < RequestTestCase
                                  xml: vms.first.xml,
                                  graphics: [],
                                  disks: [],
-                                 is_persistent: true
+                                 is_persistent: true,
+                                 auto_start: true
                              },
                              relationships: {
                                  hypervisor: {
@@ -195,7 +198,8 @@ class TestVirtualMachines < RequestTestCase
                                  xml: vms.second.xml,
                                  graphics: [],
                                  disks: [],
-                                 is_persistent: true
+                                 is_persistent: true,
+                                 auto_start: true
                              },
                              relationships: {
                                  hypervisor: {
@@ -313,7 +317,8 @@ class TestVirtualMachines < RequestTestCase
                              xml: vm.xml,
                              graphics: [],
                              disks: [],
-                             is_persistent: true
+                             is_persistent: true,
+                             auto_start: true
                          },
                          relationships: {
                              hypervisor: {
@@ -352,7 +357,8 @@ class TestVirtualMachines < RequestTestCase
                              xml: vm.xml,
                              graphics: [],
                              disks: [],
-                             is_persistent: true
+                             is_persistent: true,
+                             auto_start: true
                          },
                          relationships: {
                              hypervisor: {
@@ -424,7 +430,8 @@ class TestVirtualMachines < RequestTestCase
                              xml: vm.xml,
                              graphics: [],
                              disks: [],
-                             is_persistent: true
+                             is_persistent: true,
+                             auto_start: true
                          },
                          relationships: {
                              hypervisor: {
@@ -563,7 +570,8 @@ class TestVirtualMachines < RequestTestCase
                              xml: vm.xml,
                              graphics: [],
                              disks: [],
-                             is_persistent: true
+                             is_persistent: true,
+                             auto_start: true
                          },
                          relationships: {
                              hypervisor: {
@@ -608,7 +616,8 @@ class TestVirtualMachines < RequestTestCase
                              xml: vm.xml,
                              graphics: [],
                              disks: [],
-                             is_persistent: true
+                             is_persistent: true,
+                             auto_start: true
                          },
                          relationships: {
                              hypervisor: {
