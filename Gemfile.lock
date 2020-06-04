@@ -67,7 +67,7 @@ GEM
       process-metrics (~> 0.2.0)
       rack (>= 1.0)
       samovar (~> 2.1)
-    ffi (1.12.2)
+    ffi (1.13.0)
     gc_tracer (1.5.1)
     get_process_mem (0.2.5)
       ffi (~> 1.0)
@@ -84,7 +84,7 @@ GEM
     jsonapi-renderer (0.2.2)
     jsonapi-serializable (0.3.1)
       jsonapi-renderer (~> 0.2.0)
-    libvirt_ffi (0.6.2)
+    libvirt_ffi (0.7.0)
       ffi (>= 1.0)
     localhost (1.1.6)
     mapping (1.1.1)
@@ -181,7 +181,7 @@ DEPENDENCIES
   httparty
   jsonapi-rb
   libvirt_async!
-  libvirt_ffi (~> 0.6)
+  libvirt_ffi (~> 0.7)
   mini_magick
   minitest
   minitest-reporters
