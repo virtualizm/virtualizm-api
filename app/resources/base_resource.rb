@@ -122,7 +122,9 @@ class BaseResource
           Hypervisor: HypervisorResource::Serializable,
           VirtualMachine: VirtualMachineResource::Serializable,
           StoragePool: StoragePoolResource::Serializable,
-          StorageVolume: StorageVolumeResource::Serializable
+          StorageVolume: StorageVolumeResource::Serializable,
+          Network: NetworkResource::Serializable,
+          Interface: InterfaceResource::Serializable
       }
     end
 

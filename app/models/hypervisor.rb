@@ -35,7 +35,9 @@ class Hypervisor
               :ws_endpoint,
               :virtual_machines,
               :connection,
-              :storage_pools
+              :storage_pools,
+              :networks,
+              :interfaces
 
   attr_accessor :version,
                 :libversion,
@@ -63,8 +65,11 @@ class Hypervisor
     @on_open = []
     @on_vm_change = []
     @on_pool_change = []
+    @on_network_change = []
     @virtual_machines = []
     @storage_pools = []
+    @networks = []
+    @interfaces = []
 
     # force connect to initialize events callbacks
     set_connection
@@ -107,6 +112,10 @@ class Hypervisor
     @on_pool_change.push(block)
   end
 
+  def on_network_change(&block)
+    @on_network_change.push(block)
+  end
+
   def connected?
     @is_connected
   end
@@ -134,10 +143,12 @@ class Hypervisor
 
     info { "#{hv_info} connected." }
     setup_attributes
-    register_dom_event_callbacks
+    register_event_callbacks
     register_close_callback
     load_virtual_machines
     load_storage_pools
+    load_networks
+    load_interfaces
     @on_open.each { |cb| cb.call(self) }
   rescue StandardError => e
     log_error(e)
@@ -181,6 +192,7 @@ class Hypervisor
 
     @virtual_machines = []
     @storage_pools = []
+    @networks = []
     try_connect
   end
 
@@ -208,6 +220,32 @@ class Hypervisor
     end
 
     dbg { "initialized size=#{storage_pools.size} #{hv_info}" }
+  end
+
+  def load_networks
+    dbg { "loading #{hv_info}" }
+
+    nets = connection.list_all_networks
+    dbg { "loaded size=#{nets.size} #{hv_info}" }
+
+    @networks = nets.map do |net|
+      Network.new(net, hypervisor: self)
+    end
+
+    dbg { "initialized size=#{networks.size} #{hv_info}" }
+  end
+
+  def load_interfaces
+    dbg { "loading #{hv_info}" }
+
+    ifaces = connection.list_all_interfaces
+    dbg { "loaded size=#{ifaces.size} #{hv_info}" }
+
+    @interfaces = ifaces.map do |iface|
+      Interface.new(iface, hypervisor: self)
+    end
+
+    dbg { "initialized size=#{interfaces.size} #{hv_info}" }
   end
 
   def _open_connection
@@ -263,7 +301,7 @@ class Hypervisor
     dbg { "free_memory set #{hv_info}" }
   end
 
-  def register_dom_event_callbacks
+  def register_event_callbacks
     dbg { "started #{hv_info}" }
 
     connection.register_domain_event_callback(
@@ -289,6 +327,35 @@ class Hypervisor
         &method(:storage_event_callback_refresh)
     )
     dbg { "register_storage_pool_event_callback REFRESH registered #{hv_info}" }
+    connection.register_network_event_callback(
+        :LIFECYCLE,
+        &method(:network_event_callback_lifecycle)
+    )
+    dbg { "register_network_event_callback LIFECYCLE registered #{hv_info}" }
+  end
+
+  def network_event_callback_lifecycle(_conn, net, event, detail, _opaque)
+    dbg { "NETWORK EVENT LIFECYCLE #{hv_info}, #{net_info(net)}, event=#{event}, detail=#{detail}" }
+    network = networks.detect { |r| r.uuid == net.uuid }
+    if network.nil?
+      network = StoragePool.new(pool, hypervisor: self)
+      dbg { "NETWORK ADDED #{hv_info}, #{net_info(net)}" }
+      networks << network
+      networks_changed(:create, network)
+      return
+    end
+
+    if event == :UNDEFINED
+      dbg { "NETWORK REMOVED #{hv_info}, #{net_info(net)}" }
+      networks.delete(network)
+      network.is_persisted = false
+      network_changed(:destroy, network)
+      return
+    end
+
+    dbg { "NETWORK CHANGED #{hv_info}, #{net_info(net)}" }
+    network.sync_is_active
+    network_changed(:update, network)
   end
 
   def storage_event_callback_lifecycle(_conn, pool, event, detail, _opaque)
@@ -374,6 +441,12 @@ class Hypervisor
     end
   end
 
+  def network_changed(action, pool)
+    @on_network_change.each do |block|
+      Async.run_new { block.call(action, pool) }
+    end
+  end
+
   def hv_info
     "hv.id=#{id}, hv.name=#{name}"
   end
@@ -387,5 +460,11 @@ class Hypervisor
 
   def pool_info(pool)
     "pool.id=#{pool.uuid}, pool.name=#{pool.name}"
+  end
+
+  # @param net [Libvirt::Network]
+  # @return [String]
+  def net_info(net)
+    "net.id=#{net.uuid}, net.name=#{net.name}"
   end
 end
