@@ -24,7 +24,7 @@ gem 'rack_router', '>= 0.1.2'
 # https://github.com/socketry/falcon
 gem 'falcon'
 
-gem 'libvirt_ffi', '~> 0.7'
+gem 'libvirt_ffi', '~> 0.8'
 
 # Async libvirt event api implementation
 # https://github.com/senid231/libvirt_async
