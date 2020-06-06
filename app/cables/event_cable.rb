@@ -15,6 +15,12 @@ class EventCable < BaseCable
       { state: pool.state }
     end
 
+    # @param net [Network]
+    # @return [Hash]
+    def net_attributes(net)
+      { is_active: net.is_active, is_persisted: net.is_persisted, is_auto_run: net.is_auto_run }
+    end
+
     def create_virtual_machine(vm)
       logger&.info(name) { "broadcast create_virtual_machine vm=#{vm.id}" }
       payload = { id: vm.id, hypervisor_id: vm.hypervisor.id }
@@ -49,6 +55,24 @@ class EventCable < BaseCable
       logger&.info(name) { "broadcast destroy_storage_pool pool=#{pool.uuid}, pool.name=#{pool.name}" }
       payload = { id: pool.uuid, hypervisor_id: pool.hypervisor.id }
       broadcast(type: 'destroy_storage_pool', payload: payload)
+    end
+
+    def create_network(net)
+      logger&.info(name) { "broadcast create_network net.uuid=#{net.uuid}, net.name=#{net.name}" }
+      payload = { id: net.uuid, hypervisor_id: net.hypervisor.id }
+      broadcast(type: 'create_network', payload: payload)
+    end
+
+    def update_network(net)
+      logger&.info(name) { "broadcast create_network net.uuid=#{net.uuid}, net.name=#{net.name}" }
+      payload = { id: net.uuid, hypervisor_id: net.hypervisor.id, attributes: net_attributes(net) }
+      broadcast(type: 'update_network', payload: payload)
+    end
+
+    def destroy_network(net)
+      logger&.info(name) { "broadcast create_network net.uuid=#{net.uuid}, net.name=#{net.name}" }
+      payload = { id: net.uuid, hypervisor_id: net.hypervisor.id }
+      broadcast(type: 'destroy_network', payload: payload)
     end
 
     def broadcast(data)

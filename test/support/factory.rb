@@ -79,11 +79,23 @@ class Factory
         nil
       end
 
+      def register_network_event_callback(_event, _net = nil, _opaque = nil)
+        nil
+      end
+
       def list_all_domains
         []
       end
 
       def list_all_storage_pools
+        []
+      end
+
+      def list_all_networks
+        []
+      end
+
+      def list_all_interfaces
         []
       end
 

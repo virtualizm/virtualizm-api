@@ -43,6 +43,17 @@ Hypervisor.all.each do |hv|
       EventCable.destroy_storage_pool(pool)
     end
   end
+
+  hv.on_network_change do |action, network|
+    case action
+    when :create
+      EventCable.create_network(network)
+    when :update
+      EventCable.update_network(network)
+    when :destroy
+      EventCable.destroy_network(network)
+    end
+  end
 end
 
 # build application server
@@ -93,6 +104,12 @@ Application.app = Rack::Builder.new do
 
       get '/storage-volumes', [StorageVolumesController, :index]
       get '/storage-volumes/:id', [StorageVolumesController, :show]
+
+      get '/networks', [NetworksController, :index]
+      get '/networks/:id', [NetworksController, :show]
+
+      get '/interfaces', [InterfacesController, :index]
+      get '/interfaces/:id', [InterfacesController, :show]
 
       get '/spice/:id', [SpiceController, :show]
     end
