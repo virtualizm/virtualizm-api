@@ -103,7 +103,7 @@ GEM
     multi_xml (0.6.0)
     net-ldap (0.16.2)
     nio4r (2.5.2)
-    nokogiri (1.10.9)
+    nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
     null-logger (0.1.5)
     optimist (3.0.1)
