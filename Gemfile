@@ -36,7 +36,7 @@ gem 'async_cable'
 
 # Ruby libraries and applications configuration on steroids!
 # https://github.com/palkan/anyway_config
-gem 'anyway_config', '2.0.5'
+gem 'anyway_config', '2.0.6'
 
 # Efficiently produce and consume JSON API documents.
 # https://github.com/jsonapi-rb/jsonapi-rb
