@@ -67,7 +67,7 @@ GEM
       process-metrics (~> 0.2.0)
       rack (>= 1.0)
       samovar (~> 2.1)
-    ffi (1.13.0)
+    ffi (1.13.1)
     gc_tracer (1.5.1)
     get_process_mem (0.2.5)
       ffi (~> 1.0)
@@ -138,7 +138,7 @@ GEM
       rack
     rainbow (3.0.0)
     rake (13.0.1)
-    rbtrace (0.4.13)
+    rbtrace (0.4.14)
       ffi (>= 1.0.6)
       msgpack (>= 0.4.3)
       optimist (>= 3.0.0)
