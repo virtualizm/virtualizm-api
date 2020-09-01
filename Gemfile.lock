@@ -93,7 +93,7 @@ GEM
     mime-types-data (3.2020.0512)
     mini_magick (4.10.1)
     mini_portile2 (2.4.0)
-    minitest (5.14.1)
+    minitest (5.14.2)
     minitest-reporters (1.4.2)
       ansi
       builder
