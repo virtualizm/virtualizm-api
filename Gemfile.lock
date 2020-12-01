@@ -126,7 +126,7 @@ GEM
       protocol-http (~> 0.2)
       protocol-http1 (~> 0.2)
     rack (2.2.3)
-    rack-contrib (2.2.0)
+    rack-contrib (2.3.0)
       rack (~> 2.0)
     rack-protection (2.1.0)
       rack
