@@ -27,8 +27,8 @@ RUN 	apt-get update && \
 		fakeroot \
 		lintian \
 		python-jinja2 \
-		ruby2.6 \
-		ruby2.6-dev \
+		ruby3.0 \
+		ruby3.0-dev \
 		zlib1g-dev \
 		python-yaml \
 		git-changelog \

@@ -27,7 +27,7 @@ class SessionResource < BaseResource
 
     def create(data, options)
       context = options[:context]
-      user = User.authenticate(data)
+      user = User.authenticate(**data)
       raise JSONAPI::Errors::ValidationError.new(:data, 'login or password invalid') if user.nil?
 
       context[:request].session['user_id'] = user.id
