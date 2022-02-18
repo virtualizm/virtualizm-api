@@ -20,8 +20,9 @@ module Async
   # @return timer
   def run_after(timeout, &block)
     reactor = current_reactor
-    current_reactor.after(timeout) do
-      run_new(nil, reactor, &block)
+    run_new(nil, reactor) do
+      current_reactor.sleep(timeout)
+      block.call
     end
   end
 
