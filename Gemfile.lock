@@ -156,7 +156,7 @@ GEM
       mapping (~> 1.0)
     thread_safe (0.3.6)
     timers (4.3.2)
-    tzinfo (1.2.7)
+    tzinfo (1.2.10)
       thread_safe (~> 0.1)
     unicode-display_width (1.7.0)
     websocket (1.2.8)
