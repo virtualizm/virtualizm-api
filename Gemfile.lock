@@ -125,7 +125,7 @@ GEM
     protocol-websocket (0.7.4)
       protocol-http (~> 0.2)
       protocol-http1 (~> 0.2)
-    rack (2.2.3)
+    rack (2.2.6.3)
     rack-contrib (2.2.0)
       rack (~> 2.0)
     rack-protection (2.1.0)
